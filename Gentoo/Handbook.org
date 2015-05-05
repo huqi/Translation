@@ -1,0 +1,17 @@
+#+TITLE: Gentoo Linux amd64 手册: 安装Gentoo
+* 序言
+** 欢迎
+#+BEGIN_QUOTE
+First of all, welcome to Gentoo. You are about to enter the world of choices and performance. Gentoo is all about choices. When installing Gentoo, this is made clear several times -- users can choose how much they want to compile themselves, how to install Gentoo, what system logger to use, etc.
+#+END_QUOTE
+首先，欢迎来到Gentoo。您将进入选择和性能的世界。Gentoo处处都是选择。当安装Gentoo时，这点你会感受到好几次，用户可以选择编译多少软件，怎么安装，系统使用什么系统日志程序等，等等。
+
+#+BEGIN_QUOTE
+Gentoo is a fast, modern meta-distribution with a clean and flexible design. Gentoo is built around free software and doesn't hide from its users what is beneath the hood. Portage, the package maintenance system which Gentoo uses, is written in Python, meaning the user can easily view and modify the source code. Gentoo's packaging system uses source code (although support for precompiled packages is included too) and configuring Gentoo happens through regular text files. In other words, openness everywhere.
+#+END_QUOTE
+Gentoo是一个快速而先进的元发行版本，它有着简洁和灵活的设计理念。Gentoo是由自由软件编译而成，它不向用户隐藏任何东西。Gentoo使用Portage进行软件包管理，它用Python编写而成，用户可以轻松的查看和修改源代码。Gentoo软件包管理系统使用源代码（虽然也支持预编译软件包）进行管理，配置文件使用普通的文本文件。也就是说，处处都是开放的。
+
+#+BEGIN_QUOTE
+It is very important that everybody understands that choices are what makes Gentoo run. We try not to force users onto anything they don't like. If anyone believes otherwise, please bugreport it.
+#+END_QUOTE
+让用户明白怎么选择可以运行Gentoo是非常重要的。我们不会强迫用户做他们不喜欢的事情，如果你觉得我有的话，请[[https://bugs.gentoo.org/][告诉]]我们。
