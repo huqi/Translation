@@ -1,13 +1,13 @@
 #+TITLE: Gentoo Linux amd64 手册: 安装Gentoo
 * 序言
 ** 欢迎
-#+BEGIN_QUOTE
+Welcome
+
 First of all, welcome to Gentoo. You are about to enter the world of choices and performance. Gentoo is all about choices. When installing Gentoo, this is made clear several times -- users can choose how much they want to compile themselves, how to install Gentoo, what system logger to use, etc.
 
 Gentoo is a fast, modern meta-distribution with a clean and flexible design. Gentoo is built around free software and doesn't hide from its users what is beneath the hood. Portage, the package maintenance system which Gentoo uses, is written in Python, meaning the user can easily view and modify the source code. Gentoo's packaging system uses source code (although support for precompiled packages is included too) and configuring Gentoo happens through regular text files. In other words, openness everywhere.
 
 It is very important that everybody understands that choices are what makes Gentoo run. We try not to force users onto anything they don't like. If anyone believes otherwise, please bugreport it.
-#+END_QUOTE
 
 首先，欢迎来到Gentoo。您将进入选择和性能的世界。Gentoo处处都是选择。当安装Gentoo时，这点你会感受到好几次，用户可以选择编译多少软件，怎么安装，系统使用什么系统日志程序等，等等。
 
@@ -16,7 +16,8 @@ Gentoo是一个快速而先进的元发行版本，它有着简洁和灵活的�
 让用户明白怎么选择可以运行Gentoo是非常重要的。我们不会强迫用户做他们不喜欢的事情，如果你觉得我有的话，请[[https://bugs.gentoo.org/][告诉]]我们。
 
 ** 安装的结构
-#+BEGIN_QUOTE
+How is instruction structured
+
 The Gentoo Installation can be seen as a 10-step procedure, corresponding to the next set of chapters. Every step results in a certain state:
 
     1. After step 1, the user is in a working environment ready to install Gentoo
@@ -33,7 +34,7 @@ The Gentoo Installation can be seen as a 10-step procedure, corresponding to the
 Whenever a certain choice is presented, the handbook will try to explain what the pros and cons are. Although the text then continues with a default choice (identified by "Default: " in the title), the other possibilities will be documented as well (marked by "Alternative: " in the title). Do not think that the default is what Gentoo recommends. It is however what Gentoo believes most users will use.
 
 Sometimes an optional step can be followed. Such steps are marked as "Optional: " and are therefore not needed to install Gentoo. However, some optional steps are dependent on a previous decision made. The instructions will inform the reader when this happens, both when the decision is made, and right before the optional step is described.
-#+END_QUOTE
+
 Gentoo的安装可以视为10个步骤，依照下面的步骤，可以达到相应的状态。
 
   1. 第1步后，用户处在一个准备安装Gentoo的环境中。
@@ -50,3 +51,25 @@ Gentoo的安装可以视为10个步骤，依照下面的步骤，可以达到相
 当做出一个特定的选择时，手册会解释利与弊。虽然有一个默认的选择用于继续（在标题中用“默认：”标识），同时也会提供其它的可能（在标题中用“选择：”标识），不要认为默认是Gentoo推荐的设置，其实只是Gentoo认为大多数用户会选择它。
 
 有一些并不是安装Gentoo所必须的可选的步骤，这些步骤用“选项：”标识。有一些选项依赖于之前的操作，不用担心，在做出选择时和可选步骤前，我们都会有相应的提示。
+
+** 怎么选择
+What are the options
+
+Gentoo can be installed in many different ways. It can be downloaded and installed from one of Gentoo's Installation CDs, from a distribution already installed, from a non-Gentoo bootable CD (such as Knoppix), from a netbooted environment, from a rescue floppy, etc.
+
+This document covers the installation using a Gentoo Installation CD or, in certain cases, netbooting.
+
+Note For help on the other installation approaches, including using non-Gentoo CDs, please read our [[https://wiki.gentoo.org/wiki/Installation_alternatives][Alternative Installation Guide]].
+
+We also provide a [[https://wiki.gentoo.org/wiki/Gentoo_installation_tips_and_tricks][Gentoo Installation Tips & Tricks]] document that might be useful to read as well.
+
+Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装，可以通过一个安装好的发行版进行安装，从一个不是Gentoo（例如Knoppix）的启动光盘进行安装，从网络安装，从急救光盘安装，等。
+
+本文档包含了通过安装光盘安装，同时也包含了一些网络安装的方法。
+
+#+BEGIN_QUOTE
+*注释*
+其它方式安装的帮助，包括非Gentoo安装光盘的安装方法，请查看[[https://wiki.gentoo.org/wiki/Installation_alternatives][其它安装指南]]
+#+END_QUOTE
+
+我们也提供了一个可能很有用的[[https://wiki.gentoo.org/wiki/Gentoo_installation_tips_and_tricks][Gentoo安装提示和技巧]]文档供你参考。
