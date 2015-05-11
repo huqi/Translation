@@ -91,3 +91,26 @@ Speaking of which, if there are any additional questions regarding Gentoo, check
 如果有一些不确定是用户问题（尽管用户已经仔细的阅读了手册）还是系统问题（尽管我们已经仔细的测试过这些文档），我们欢迎任何人人加入在irc.freenode.net上的#gentoo频道。当然，也欢迎加入其它的关于Gentoo的频道。
 
 说到这，如果有其它关于Gentoo的问题，请看[[https://wiki.gentoo.org/wiki/Main_Page][Gentoo Wiki]]里的[[https://wiki.gentoo.org/wiki/FAQ][常见问题]]，[[https://forums.gentoo.org/][Gentoo论坛]]上也有[[https://forums.gentoo.org/viewforum.php?f%3D40][FAQs]]。
+
+** 硬件需求
+Hardware requirements
+
+Before we start, we first list what hardware requirements are needed to successfully install Gentoo on a amd64 box.
+
+|           | Minimal CD                           | LiveDVD                                |
+| CPU       | Any AMD64 CPU or EM64T CPU (Core 2 Duo & Quad processors are EM64T)           |
+| Memory    | 256 MB                               | 512 MB                                 |
+| Diskspace | 2.5 GB (excluding swap space)                                                 |
+| Swapspace | At least 256 MB                                                               |
+
+The Gentoo AMD64 project site is a good place to be for more information about Gentoo's AMD64 support.
+
+在开始前，我们列出了成功安装Gentoo amd64的硬件需求。
+
+|           | Minimal CD                           | LiveDVD                                |
+| CPU       | Any AMD64 CPU or EM64T CPU (Core 2 Duo & Quad processors are EM64T)           |
+| Memory    | 256 MB                               | 512 MB                                 |
+| Diskspace | 2.5 GB (excluding swap space)                                                 |
+| Swapspace | At least 256 MB                                                               |
+
+[[https://www.gentoo.org/proj/en/base/amd64/][Gentoo AMD64 项目站点]]有更多关于Gentoo AMD64的信息。
