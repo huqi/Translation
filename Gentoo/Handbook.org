@@ -68,8 +68,26 @@ Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装�
 本文档包含了通过安装光盘安装，同时也包含了一些网络安装的方法。
 
 #+BEGIN_QUOTE
-*注释*
-其它方式安装的帮助，包括非Gentoo安装光盘的安装方法，请查看[[https://wiki.gentoo.org/wiki/Installation_alternatives][其它安装指南]]
+*注释*其它方式安装的帮助，包括非Gentoo安装光盘的安装方法，请查看[[https://wiki.gentoo.org/wiki/Installation_alternatives][其它安装指南]]
 #+END_QUOTE
 
 我们也提供了一个可能很有用的[[https://wiki.gentoo.org/wiki/Gentoo_installation_tips_and_tricks][Gentoo安装提示和技巧]]文档供你参考。
+
+** 困难
+Troubles
+
+If a problem is found in the installation (or in the installation documentation), please visit our bugtracking system and check if the bug is known. If not, please create a [[https://bugs.gentoo.org/][bugreport]] for it so we can take care of it. Do not be afraid of the developers who are assigned to the bugs -- they (generally) don't eat people.
+
+Note though that, although this document is architecture-specific, it might contain references to other architectures as well. This is due to the fact that large parts of the Gentoo Handbook use source code that is common for all architectures (to avoid duplication of efforts and starvation of development resources). We will try to keep this to a minimum to avoid confusion.
+
+If there is some uncertainty whether or not the problem is a user-problem (some error made despite having read the documentation carefully) or a software-problem (some error we made despite having tested the installation/documentation carefully) everybody is welcome to join #gentoo on irc.freenode.net. Of course, everyone is welcome otherwise too as our chat channel covers the broad Gentoo spectrum.
+
+Speaking of which, if there are any additional questions regarding Gentoo, check out our Frequently Asked Questions, available from the Gentoo Wiki. There are also FAQs on the Gentoo Forums.
+
+如果你在安装的时候（或者在安装文档）发现了问题，请访问我们的[[https://bugs.gentoo.org/][bug追踪系统]]查看这个问题是否已经提交。如果还没有存在请提交一个bug报告给我们，我们会注意它。不要害怕负责你的bug的开发人员，他们不会吃人的。
+
+可能你注意到，这个文档已经结构化了，包含了结构化文档的其它链接。这是因为Gentoo的手册使用了大量的源代码（也是为了减少文档的复杂度和提高使用效率）。我们会尽量保证不会让你困惑。
+
+如果有一些不确定是用户问题（尽管用户已经仔细的阅读了手册）还是系统问题（尽管我们已经仔细的测试过这些文档），我们欢迎任何人人加入在irc.freenode.net上的#gentoo频道。当然，也欢迎加入其它的关于Gentoo的频道。
+
+说到这，如果有其它关于Gentoo的问题，请看[[https://wiki.gentoo.org/wiki/Main_Page][Gentoo Wiki]]里的[[https://wiki.gentoo.org/wiki/FAQ][常见问题]]，[[https://forums.gentoo.org/][Gentoo论坛]]上也有[[https://forums.gentoo.org/viewforum.php?f%3D40][FAQs]]。
