@@ -1,0 +1,4 @@
+#+TITLE: Translation
+
+* Gentoo
+ - [[https://github.com/huqi/Translation/blob/master/Gentoo/Handbook.org][Gentoo安装手册]]
