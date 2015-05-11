@@ -68,7 +68,8 @@ Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装�
 本文档包含了通过安装光盘安装，同时也包含了一些网络安装的方法。
 
 #+BEGIN_QUOTE
-*注释*其它方式安装的帮助，包括非Gentoo安装光盘的安装方法，请查看[[https://wiki.gentoo.org/wiki/Installation_alternatives][其它安装指南]]
+*注释*
+其它方式安装的帮助，包括非Gentoo安装光盘的安装方法，请查看[[https://wiki.gentoo.org/wiki/Installation_alternatives][其它安装指南]]
 #+END_QUOTE
 
 我们也提供了一个可能很有用的[[https://wiki.gentoo.org/wiki/Gentoo_installation_tips_and_tricks][Gentoo安装提示和技巧]]文档供你参考。
@@ -107,10 +108,10 @@ The Gentoo AMD64 project site is a good place to be for more information about G
 
 在开始前，我们列出了成功安装Gentoo amd64的硬件需求。
 
-|           | Minimal CD                           | LiveDVD                                |
-| CPU       | Any AMD64 CPU or EM64T CPU (Core 2 Duo & Quad processors are EM64T)           |
-| Memory    | 256 MB                               | 512 MB                                 |
-| Diskspace | 2.5 GB (excluding swap space)                                                 |
-| Swapspace | At least 256 MB                                                               |
+|           | Minimal CD                                                          | LiveDVD |
+| CPU       | Any AMD64 CPU or EM64T CPU (Core 2 Duo & Quad processors are EM64T) |         |
+| Memory    | 256 MB                                                              | 512 MB  |
+| Diskspace | 2.5 GB (excluding swap space)                                       |         |
+| Swapspace | At least 256 MB                                                     |         |
 
 [[https://www.gentoo.org/proj/en/base/amd64/][Gentoo AMD64 项目站点]]有更多关于Gentoo AMD64的信息。
