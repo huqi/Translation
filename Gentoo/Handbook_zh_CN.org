@@ -1,6 +1,8 @@
 #+TITLE: Gentoo Linux amd64 手册: 安装Gentoo
 * 序言
+
 ** 欢迎
+
 首先，欢迎来到Gentoo。您将进入选择和性能的世界。Gentoo处处都是选择。当安装Gentoo时，这点你会感受到好几次，用户可以选择编译多少软件，怎么安装，系统使用什么系统日志程序等，等等。
 
 Gentoo是一个快速而先进的元发行版本，它有着简洁和灵活的设计理念。Gentoo是由自由软件编译而成，它不向用户隐藏任何东西。Gentoo使用Portage进行软件包管理，它用Python编写而成，用户可以轻松的查看和修改源代码。Gentoo软件包管理系统使用源代码（虽然也支持预编译软件包）进行管理，配置文件使用普通的文本文件。也就是说，处处都是开放的。
@@ -8,6 +10,7 @@ Gentoo是一个快速而先进的元发行版本，它有着简洁和灵活的�
 让用户明白怎么选择可以运行Gentoo是非常重要的。我们不会强迫用户做他们不喜欢的事情，如果你觉得我有的话，请[[https://bugs.gentoo.org/][告诉]]我们。
 
 ** 安装的结构
+
 Gentoo的安装可以视为10个步骤，依照下面的步骤，可以达到相应的状态。
 
   1. 第1步后，用户处在一个准备安装Gentoo的环境中
@@ -26,6 +29,7 @@ Gentoo的安装可以视为10个步骤，依照下面的步骤，可以达到相
 有一些并不是安装Gentoo所必须的可选的步骤，这些步骤用“选项：”标识。有一些选项依赖于之前的操作，不用担心，在做出选择时和可选步骤前，我们都会有相应的提示。
 
 ** 怎么选择
+
 Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装，可以通过一个安装好的发行版进行安装，从一个不是Gentoo（例如Knoppix）的启动光盘进行安装，从网络安装，从急救光盘安装，等。
 
 本文档包含了通过安装光盘安装，同时也包含了一些网络安装的方法。
@@ -39,6 +43,7 @@ Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装�
 我们也提供了一个可能很有用的[[https://wiki.gentoo.org/wiki/Gentoo_installation_tips_and_tricks][Gentoo安装提示和技巧]]文档供你参考。
 
 ** 困难
+
 如果你在安装的时候（或者在安装文档）发现了问题，请访问我们的[[https://bugs.gentoo.org/][bug追踪系统]]查看这个问题是否已经提交。如果还没有存在请提交一个bug报告给我们，我们会注意它。不要害怕负责你的bug的开发人员，他们不会吃人的。
 
 可能你注意到，这个文档已经结构化了，包含了结构化文档的其它链接。这是因为Gentoo的手册使用了大量的源代码（也是为了减少文档的复杂度和提高使用效率）。我们会尽量保证不会让你困惑。
@@ -48,6 +53,7 @@ Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装�
 说到这，如果有其它关于Gentoo的问题，请看[[https://wiki.gentoo.org/wiki/Main_Page][Gentoo Wiki]]里的[[https://wiki.gentoo.org/wiki/FAQ][常见问题]]，[[https://forums.gentoo.org/][Gentoo论坛]]上也有[[https://forums.gentoo.org/viewforum.php?f%3D40][FAQs]]。
 
 * 硬件需求
+
 在开始前，我们列出了成功安装Gentoo amd64的硬件需求。
 
 |           | Minimal CD                                                          | LiveDVD |
@@ -59,21 +65,27 @@ Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装�
 [[https://www.gentoo.org/proj/en/base/amd64/][Gentoo AMD64 项目站点]]有更多关于Gentoo AMD64的信息。
 
 * Gentoo安装CD
+
 ** 最小安装CD
+
 Gentoo最小安装CD是一个包含自支持环境Gentoo系统。用户可以从CD中启动，在启动的过程中系统会自动加载合适的硬件驱动。这个CD由Gentoo开发者负责维护，供用户在有网络链接的情况下安装Gentoo。
 
 最小安装CD的文件名为 /install-amd64-minimal-<release>.iso/ 。
 
 ** 临时LiveDVD
+
 有时候，Gentoo Ten项目会精心制作一个用于安装Gentoo的特别DVD版本。进一步减少安装步骤，可能和最小安装CD有一点不一样。然而，LiveDVD（或者其它的可启动的Linux环境）可能通过在终端输入 =sudo su -= 或者 =sudo -i= 来获取root权限。
 
 ** 用什么stages
+
 stage3是一个包含最小Gentoo环境的存档。适用本文档里的指令去安装Gentoo。以前，Gentoo手册说过可以使用3个包中的一个进行安装。虽然Gentoo依然支持stage1和stage2存档包进行安装，但正式的安装方法是用stage3进行安装。如果你对stage1和stage2安装感兴趣，请阅读Gentoo FAQ里的[[https://wiki.gentoo.org/wiki/FAQ#How_do_I_Install_Gentoo_Using_a_Stage1_or_Stage2_Tarball.3F][怎么用Stage1和Stage2安装Gentoo]]？
 
 Gentoo安装CD不提供Stage3，用户可以去任何一个[[https://www.gentoo.org/downloads/mirrors/][正式Gentoo镜像]]，releases/amd64/autobuilds目录下载Stage3。
 
 * 下载和烧录CD
+
 ** 下载媒体
+
 Gentoo默认的安装媒体是最小安装CD，他是一个包含正确工具的可自启动的Gentoo Linux环境。有很多镜像可以下载这个CD。
 
 在这些镜像中，你可以按如下路径找到最小安装CD：
@@ -108,6 +120,7 @@ CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso
 现在先忽略其它文件-接下来的安装中会用到他们时再说。先下载ISO映像，如果你想验证文件可靠性，也可以下载.DIGESTS.asc文件。我们不需要下载在接下来的安装中我们不用的.CONTENTS文件和.DIGESTS文件，因为我们已经有了加密了签名信息的.DIGESTS.asc文件。
 
 ** 验证下载文件
+
 #+BGEIN_QUOTE
 *注释*
 
@@ -120,6 +133,7 @@ CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso
   2. 如果数字签名验证正确，那么校验文件是否被损坏
 
 *** Windows验证
+
 在Windows系统中，不太容易在系统中找到合适的验证和数字签名工具。
 
 验证数字签名的工具可以使用[[http://www.gpg4win.org/][GPG4Win]]，安装完成后，先导入Gentoo团队的公钥，密钥列表可以在[[https://www.gentoo.org/downloads/signatures/][签名页面]]找到。导入后用户可以用.DIGESTS.asc文件进行验证。
@@ -133,6 +147,7 @@ CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso
 校验文件可以使用[[http://www.sinf.gr/en/hashcalc.html][Hashcalc application]]，不过也有其它的一些工具可以使用，大多时候那些工具会显示文件的校验值，需要用户去核对.DIGESTS.asc文件里的校验值。
 
 *** Linux验证
+
 在Linux系统，通用的验证数字签名的方法是使用[[http://packages.gentoo.org/package/app-crypt/gnupg][app-crypt/gnupg软件。]]安装好软件后，可以用如下的命令通过.DIGESTS.asc文件来验证数字签名。
 
 首先，下[[https://www.gentoo.org/downloads/signatures/][密钥页面]]上正确的密钥：
@@ -186,3 +201,26 @@ user $sha512sum install-amd64-minimal-20141204.iso
 #+END_SRC
 
 如果两个校验值相同，那么我们可以确认文件没有损坏并继续安装。
+
+** 刻录
+
+当然，只是下载完ISO文件，Gentoo Linux安装程序不会自动启动，ISO文件需要刻录到CD中并启动，我们需要把ISO文件的内容记录到CD中，而不是ISO文件本身。下面所说的是一些简单方法—更详细的指令可以查看[[https://wiki.gentoo.org/wiki/FAQ#How_do_I_burn_an_ISO_file.3F][记录ISO文件常见问题]]。
+
+*** Windows刻录
+
+在Windows系统中有很多记录工具。
+
+  - Easy Creator软件，选择文件，从CD映像刻录。修改文件类型为ISO映像，然后选择ISO文件并打开。点击开始后程序会把ISO映像正确的刻录到CD-R中。
+  - Nero Burning ROM软件，取消自动弹出的向导，从文件菜单中选择刻录映像，选择映像并点击打开。然后点击刻录可以看到刻录过程。
+
+*** Linux刻录
+
+在Linux系统中，刻录ISO文件可以用[[http://packages.gentoo.org/package/app-cdr/cdrtools][app-cdr/cdrtools]]软件包中的 =cdrecord= 命令。
+
+例如，刻录ISO文件到/dev/sr0设备（这是系统里的第一个CD设备，如果有需要请替换成正确的设备文件）：
+
+#+BEGIN_SRC
+user $cdrecord dev=/dev/sr0 install--minimal-20141204.iso
+#+END_SRC
+
+用户可以选择[[http://packages.gentoo.org/package/app-cdr/k3b][app-cdr/k3b]]软件包中图形界面的刻录工具K3B，在K3B软件中，选择工具，刻录CD映像。然后根据接下来的提示进行操作。
