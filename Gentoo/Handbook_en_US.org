@@ -131,3 +131,59 @@ This does not verify that the .DIGESTS file is correct, only that the .DIGESTS.a
 #+END_QUOTE
 
 The checksum itself can be verified using the [[http://www.sinf.gr/en/hashcalc.html][Hashcalc application]], although many others exist as well. Most of the time, these tools will show the user the calculated checksum, and the user is requested to verify this checksum with the value that is inside the .DIGESTS.asc file.
+
+** Linux based verification
+
+On a Linux system, the most common method for verifying the cryptographic signature is to use the [[http://packages.gentoo.org/package/app-crypt/gnupg][app-crypt/gnupg]] software. With this package installed, the following commands can be used to verify the cryptographic signature of the .DIGESTS.asc file.
+
+First, download the right set of keys as made available on the signatures page:
+
+#+BEGIN_SRC
+user $gpg --recv-keys 0xBB572E0E2D182910
+
+gpg: requesting key 0xBB572E0E2D182910 from hkp server pool.sks-keyservers.net
+gpg: key 0xBB572E0E2D182910: "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" 1 new signature
+gpg: 3 marginal(s) needed, 1 complete(s) needed, classic trust model
+gpg: depth: 0  valid:   3  signed:  20  trust: 0-, 0q, 0n, 0m, 0f, 3u
+gpg: depth: 1  valid:  20  signed:  12  trust: 9-, 0q, 0n, 9m, 2f, 0u
+gpg: next trustdb check due at 2018-09-15
+gpg: Total number processed: 1
+gpg:         new signatures: 1
+#+END_SRC
+
+Next verify the cryptographic signature of the .DIGESTS.asc file:
+
+#+BEGIN_SRC
+user $gpg --verify install-amd64-minimal-20141204.iso.DIGESTS.asc
+
+gpg: Signature made Fri 05 Dec 2014 02:42:44 AM CET
+gpg:                using RSA key 0xBB572E0E2D182910
+gpg: Good signature from "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 13EB BDBE DE7A 1277 5DFD  B1BA BB57 2E0E 2D18 2910
+#+END_SRC
+
+To be absolutely certain that everything is valid, verify the fingerprint shown with the fingerprint on the Gentoo signatures page.
+
+With the cryptographic signature validated, next verify the checksum to make sure the downloaded ISO file is not corrupted. The .DIGESTS.asc file contains multiple hashing algorithms, so one of the methods to validate the right one is to first look at the checksum registered in the .DIGESTS.asc file. For instance, to get the SHA512 checksum:
+
+#+BEGIN_SRC
+user $grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
+
+# SHA512 HASH
+364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
+--
+# SHA512 HASH
+0719a8954dc7432750de2e3076c8b843a2c79f5e60defe43fcca8c32ab26681dfb9898b102e211174a895ff4c8c41ddd9e9a00ad6434d36c68d74bd02f19b57f  install-amd64-minimal-20141204.iso.CONTENTS
+#+END_SRC
+
+In the above output, two SHA512 checksums are shown - one for the install-amd64-minimal-20141204.iso file and one for its accompanying .CONTENTS file. Only the first checksum is of interest, as it needs to be compared with the calculated SHA512 checksum which can be generated as follows:
+
+#+BEGIN_SRC
+user $sha512sum install-amd64-minimal-20141204.iso
+
+364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
+#+END_SRC
+
+As both checksums match, the file is not corrupted and the installation can continue.

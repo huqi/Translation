@@ -131,3 +131,58 @@ CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso
 #+END_QUOTE
 
 校验文件可以使用[[http://www.sinf.gr/en/hashcalc.html][Hashcalc application]]，不过也有其它的一些工具可以使用，大多时候那些工具会显示文件的校验值，需要用户去核对.DIGESTS.asc文件里的校验值。
+
+*** Linux验证
+在Linux系统，通用的验证数字签名的方法是使用[[http://packages.gentoo.org/package/app-crypt/gnupg][app-crypt/gnupg软件。]]安装好软件后，可以用如下的命令通过.DIGESTS.asc文件来验证数字签名。
+
+首先，下[[https://www.gentoo.org/downloads/signatures/][密钥页面]]上正确的密钥：
+
+#+BEGIN_SRC
+user $gpg --recv-keys 0xBB572E0E2D182910
+
+gpg: requesting key 0xBB572E0E2D182910 from hkp server pool.sks-keyservers.net
+gpg: key 0xBB572E0E2D182910: "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" 1 new signature
+gpg: 3 marginal(s) needed, 1 complete(s) needed, classic trust model
+gpg: depth: 0  valid:   3  signed:  20  trust: 0-, 0q, 0n, 0m, 0f, 3u
+gpg: depth: 1  valid:  20  signed:  12  trust: 9-, 0q, 0n, 9m, 2f, 0u
+gpg: next trustdb check due at 2018-09-15
+gpg: Total number processed: 1
+gpg:         new signatures: 1
+#+END_SRC
+
+然后，验证.DIGESTS.asc文件中的数字签名：
+
+#+BEGIN_SRC
+user $gpg --verify install-amd64-minimal-20141204.iso.DIGESTS.asc
+
+gpg: Signature made Fri 05 Dec 2014 02:42:44 AM CET
+gpg:                using RSA key 0xBB572E0E2D182910
+gpg: Good signature from "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 13EB BDBE DE7A 1277 5DFD  B1BA BB57 2E0E 2D18 2910
+#+END_SRC
+
+确认签名正确性，需要在[[https://www.gentoo.org/downloads/signatures/][Gentoo密钥页面]]上核对指纹。
+
+验证完数字签名后，下一步校验ISO文件完整性。.DIGESTS.asc文件包含多种HASH算法的校验值，所以验证文件完整性的方法是确认在.DIGESTS.asc文件中某算法的值，例如SHA512校验：
+
+#+BEGIN_SRC
+user $grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
+
+# SHA512 HASH
+364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
+--
+# SHA512 HASH
+0719a8954dc7432750de2e3076c8b843a2c79f5e60defe43fcca8c32ab26681dfb9898b102e211174a895ff4c8c41ddd9e9a00ad6434d36c68d74bd02f19b57f  install-amd64-minimal-20141204.iso.CONTENTS
+#+END_SRC
+
+上面的输出显示了两个SHA512校验值，一个是install-amd64-minimal-20141204.iso文件的校验值，一个是对应的.CONTENTS文件的校验值。我们只需要第一个值和我们计算的文件的校验值进行对比，我们可以用如下的命令去计算文件校验值：
+
+#+BEGIN_SRC
+user $sha512sum install-amd64-minimal-20141204.iso
+
+364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
+#+END_SRC
+
+如果两个校验值相同，那么我们可以确认文件没有损坏并继续安装。
