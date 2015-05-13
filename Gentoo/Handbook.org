@@ -69,6 +69,7 @@ Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装�
 
 #+BEGIN_QUOTE
 *注释*
+
 其它方式安装的帮助，包括非Gentoo安装光盘的安装方法，请查看[[https://wiki.gentoo.org/wiki/Installation_alternatives][其它安装指南]]
 #+END_QUOTE
 
@@ -118,62 +119,98 @@ The Gentoo AMD64 project site is a good place to be for more information about G
 
 ** Gentoo安装CD
 
-Gentoo Linux installation CD
-Minimal installation CD
+Gentoo Linux installation CD Minimal installation CD
 
-The Gentoo minimal installation CD is a bootable CD which contains a
-self-sustained Gentoo environment. It allows the user to boot Linux
-from the CD. During the boot process the hardware is detected and the
-appropriate drivers are loaded. The CD is maintained by Gentoo
-developers and allows anyone to install Gentoo if an active Internet
-connection is available.
+The Gentoo minimal installation CD is a bootable CD which contains a self-sustained Gentoo environment. It allows the user to boot Linux from the CD. During the boot process the hardware is detected and the appropriate drivers are loaded. The CD is maintained by Gentoo developers and allows anyone to install Gentoo if an active Internet connection is available.
 
-The Minimal Installation CD is called
-install-amd64-minimal-<release>.iso.
+The Minimal Installation CD is called install-amd64-minimal-<release>.iso.
 
 The occasional Gentoo LiveDVD
 
-Occasionally, a special DVD is crafted by the Gentoo Ten project which
-can be used to install Gentoo. The instructions further down this
-chapter target the Minimal Installation CD so might be a bit
-different. However, the LiveDVD (or any other bootable Linux
-environment) supports getting a root prompt by just invoking sudo su -
-or sudo -i on a terminal.
+Occasionally, a special DVD is crafted by the Gentoo Ten project which can be used to install Gentoo. The instructions further down this chapter target the Minimal Installation CD so might be a bit different. However, the LiveDVD (or any other bootable Linux environment) supports getting a root prompt by just invoking sudo su - or sudo -i on a terminal.
 
 What are stages then?
 
-A stage3 tarball is an archive containing a minimal Gentoo
-environment, suitable to continue the Gentoo installation using the
-instructions in this manual. Previously, the Gentoo Handbook described
-the installation using one of three stage tarballs. While Gentoo still
-offers stage1 and stage2 tarballs, the official installation method
-uses the stage3 tarball. If you are interested in performing a Gentoo
-installation using a stage1 or stage2 tarball, please read the Gentoo
-FAQ on How do I Install Gentoo Using a Stage1 or Stage2 Tarball?
+A stage3 tarball is an archive containing a minimal Gentoo environment, suitable to continue the Gentoo installation using the instructions in this manual. Previously, the Gentoo Handbook described the installation using one of three stage tarballs. While Gentoo still offers stage1 and stage2 tarballs, the official installation method uses the stage3 tarball. If you are interested in performing a Gentoo installation using a stage1 or stage2 tarball, please read the Gentoo FAQ on How do I Install Gentoo Using a Stage1 or Stage2 Tarball?
 
-Stage3 tarballs can be downloaded from releases/amd64/autobuilds/ on
-any of the official Gentoo mirrors and are not provided by the
-installation CD.
+Stage3 tarballs can be downloaded from releases/amd64/autobuilds/ on any of the official Gentoo mirrors and are not provided by the installation CD.
 
 *** 最小安装CD
-Gentoo最小安装CD是一个包含自支持环境Gentoo系统。用户可以从CD中启动，在
-启动的过程中系统会自动加载合适的硬件驱动。这个CD由Gentoo开发者负责维护，
-供用户在有网络链接的情况下安装Gentoo。
+Gentoo最小安装CD是一个包含自支持环境Gentoo系统。用户可以从CD中启动，在启动的过程中系统会自动加载合适的硬件驱动。这个CD由Gentoo开发者负责维护，供用户在有网络链接的情况下安装Gentoo。
 
 最小安装CD的文件名为 =install-amd64-minimal-<release>.iso= 。
 
 *** 临时LiveDVD
-有时候，Gentoo Ten项目会精心制作一个用于安装Gentoo的特别DVD版本。进一
-步减少安装步骤，可能和最小安装CD有一点不一样。然而，LiveDVD（或者其它
-的可启动的Linux环境）可能通过在终端输入 =sudo su -= 或者 =sudo -i= 来
-获取root权限。
+有时候，Gentoo Ten项目会精心制作一个用于安装Gentoo的特别DVD版本。进一步减少安装步骤，可能和最小安装CD有一点不一样。然而，LiveDVD（或者其它的可启动的Linux环境）可能通过在终端输入 =sudo su -= 或者 =sudo -i= 来获取root权限。
 
 *** 用什么stages
-stage3是一个包含最小Gentoo环境的存档。适用本文档里的指令去安装Gentoo。
-以前，Gentoo手册说过可以使用3个包中的一个进行安装。虽然Gentoo依然支持
-stage1和stage2存档包进行安装，但正式的安装方法是用stage3进行安装。如果
-你对stage1和stage2安装感兴趣，请阅读Gentoo FAQ里的[[https://wiki.gentoo.org/wiki/FAQ#How_do_I_Install_Gentoo_Using_a_Stage1_or_Stage2_Tarball.3F][怎么用Stage1和Stage2
-安装Gentoo？]]
+stage3是一个包含最小Gentoo环境的存档。适用本文档里的指令去安装Gentoo。以前，Gentoo手册说过可以使用3个包中的一个进行安装。虽然Gentoo依然支持stage1和stage2存档包进行安装，但正式的安装方法是用stage3进行安装。如果你对stage1和stage2安装感兴趣，请阅读Gentoo FAQ里的[[https://wiki.gentoo.org/wiki/FAQ#How_do_I_Install_Gentoo_Using_a_Stage1_or_Stage2_Tarball.3F][怎么用Stage1和Stage2安装Gentoo？]]
 
-Gentoo安装CD不提供Stage3，用户可以去任何一个[[https://www.gentoo.org/downloads/mirrors/][正式Gentoo镜像]]，
-releases/amd64/autobuilds目录下载Stage3。
+Gentoo安装CD不提供Stage3，用户可以去任何一个[[https://www.gentoo.org/downloads/mirrors/][正式Gentoo镜像]]，releases/amd64/autobuilds目录下载Stage3。
+
+** 下载和烧录CD
+
+Downloading and burning the CD Download the media
+
+The default installation media that Gentoo Linux uses are the minimal installation CDs, which host a bootable, very small Gentoo Linux environment with the right tools to install Gentoo Linux from. The CD images themselves can be downloaded from one of the many mirrors available.
+
+On those mirrors, the minimal installation CDs can be found as follows:
+
+    Go to the releases/ directory Select the right architecture, such as amd64/ Select the autobuilds/ directory Select the current-iso/ directory
+
+Inside this location, the installation CD file is the file with the .iso suffix. For instance, take a look at the following listing:
+
+
+CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso/
+
+[DIR] hardened/ 05-Dec-2014 01:42 -
+[ ] install-amd64-minimal-20141204.iso 04-Dec-2014 21:04 208M
+[ ] install-amd64-minimal-20141204.iso.CONTENTS 04-Dec-2014 21:04 3.0K
+[ ] install-amd64-minimal-20141204.iso.DIGESTS 04-Dec-2014 21:04 740
+[TXT] install-amd64-minimal-20141204.iso.DIGESTS.asc 05-Dec-2014 01:421.6K
+[ ] stage3-amd64-20141204.tar.bz2 04-Dec-2014 21:04 198M
+[ ] stage3-amd64-20141204.tar.bz2.CONTENTS 04-Dec-2014 21:04 4.6M
+[ ] stage3-amd64-20141204.tar.bz2.DIGESTS 04-Dec-2014 21:04 720
+[TXT] stage3-amd64-20141204.tar.bz2.DIGESTS.asc 05-Dec-2014 01:42 1.5K
+
+
+In the above example, the install-amd64-minimal-20141204.iso file is the minimal installation CD itself. But as can be seen, other related files exist as well:
+
+
+    A .CONTENTS file which is a text file listing all files available on the installation CD. This file can be useful to verify if particular firmware or drivers are available on the installation CD before downloading it.  A .DIGESTS file which contains the hash of the ISO file itself, in various hashing formats/algorithms. This file can be used to verify if the downloaded ISO file is corrupt or not.  A .DIGESTS.asc file which not only contains the hash of the ISO file (like the .DIGESTS file), but also a cryptographic signature of that file. This can be used to both verify if the downloaded ISO file is corrupt or not, as well as verify that the download is indeed provided by the Gentoo Release Engineering team and has not been tampered with.
+
+Ignore the other files available at this location for now - those will come back when the installation has proceeded further. Download the .ISO file and, if verification of the download is wanted, download the .DIGESTS.asc file for the ISO file as well. The .CONTENTS file does not need to be downloaded as the installation instructions will not refer to this file anymore, and the .DIGESTS file should contain the same information as the .DIGESTS.asc file, except that the latter also contains a signature on top of it.
+
+
+*** 下载媒体
+Gentoo默认的安装媒体是最小安装CD，他是一个包含正确工具的可自启动的Gentoo Linux环境。有很多镜像可以下载这个CD。
+
+在这些镜像中，你可以按如下路径找到最小安装CD：
+  1. 找到releases/目录。
+  2. 选择正确的架构，例如amd64。
+  3. 选择autobuilds/目录。
+  4. 选择current-iso/目录。
+在这个位置，安装CD文件以.iso后缀。例如，请看下面这个列表：
+
+#+BEGIN_SRC
+CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso/
+
+[DIR] hardened/                                         05-Dec-2014 01:42 -
+[   ] install-amd64-minimal-20141204.iso                04-Dec-2014 21:04 208M
+[   ] install-amd64-minimal-20141204.iso.CONTENTS       04-Dec-2014 21:04 3.0K
+[   ] install-amd64-minimal-20141204.iso.DIGESTS        04-Dec-2014 21:04 740
+[TXT] install-amd64-minimal-20141204.iso.DIGESTS.asc    05-Dec-2014 01:42 1.6K
+[   ] stage3-amd64-20141204.tar.bz2                     04-Dec-2014 21:04 198M
+[   ] stage3-amd64-20141204.tar.bz2.CONTENTS            04-Dec-2014 21:04 4.6M
+[   ] stage3-amd64-20141204.tar.bz2.DIGESTS             04-Dec-2014 21:04 720
+[TXT] stage3-amd64-20141204.tar.bz2.DIGESTS.asc         05-Dec-2014 01:42 1.5K
+#+END_SRC
+
+在上面的例子中，install-amd64-minimal-20141204.iso文件就是最小安装CD。你也可以看到一些其它相关的文件：
+  - A.CONTENTS文件是一个列出了安装CD中所有文件的文本文件。
+  - A.DIGESTS文件包含了ISO文件的HASH值，这个文件可以用来验证下载的映像
+    是否损坏。
+  - A.DIGESTS.asc文件不只包含了ISO文件的HASH值（像.DIGESTS文件那样），
+    还加密了那个文件的签名信息。这个文件不仅能验证文件是否损坏，还能验证是否是Gentoo团队释出的版本，以防止被它人篡改。
+
+现在先忽略其它文件-接下来的安装中会用到他们时再说。先下载ISO映像，如果你想验证文件可靠性，也可以下载.DIGESTS.asc文件。我们不需要下载在接下来的安装中我们不用的.CONTENTS文件和.DIGESTS文件，因为我们已经有了加密了签名信息的.DIGESTS.asc文件。
