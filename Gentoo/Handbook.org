@@ -115,3 +115,65 @@ The Gentoo AMD64 project site is a good place to be for more information about G
 | Swapspace | At least 256 MB                                                     |         |
 
 [[https://www.gentoo.org/proj/en/base/amd64/][Gentoo AMD64 项目站点]]有更多关于Gentoo AMD64的信息。
+
+** Gentoo安装CD
+
+Gentoo Linux installation CD
+Minimal installation CD
+
+The Gentoo minimal installation CD is a bootable CD which contains a
+self-sustained Gentoo environment. It allows the user to boot Linux
+from the CD. During the boot process the hardware is detected and the
+appropriate drivers are loaded. The CD is maintained by Gentoo
+developers and allows anyone to install Gentoo if an active Internet
+connection is available.
+
+The Minimal Installation CD is called
+install-amd64-minimal-<release>.iso.
+
+The occasional Gentoo LiveDVD
+
+Occasionally, a special DVD is crafted by the Gentoo Ten project which
+can be used to install Gentoo. The instructions further down this
+chapter target the Minimal Installation CD so might be a bit
+different. However, the LiveDVD (or any other bootable Linux
+environment) supports getting a root prompt by just invoking sudo su -
+or sudo -i on a terminal.
+
+What are stages then?
+
+A stage3 tarball is an archive containing a minimal Gentoo
+environment, suitable to continue the Gentoo installation using the
+instructions in this manual. Previously, the Gentoo Handbook described
+the installation using one of three stage tarballs. While Gentoo still
+offers stage1 and stage2 tarballs, the official installation method
+uses the stage3 tarball. If you are interested in performing a Gentoo
+installation using a stage1 or stage2 tarball, please read the Gentoo
+FAQ on How do I Install Gentoo Using a Stage1 or Stage2 Tarball?
+
+Stage3 tarballs can be downloaded from releases/amd64/autobuilds/ on
+any of the official Gentoo mirrors and are not provided by the
+installation CD.
+
+*** 最小安装CD
+Gentoo最小安装CD是一个包含自支持环境Gentoo系统。用户可以从CD中启动，在
+启动的过程中系统会自动加载合适的硬件驱动。这个CD由Gentoo开发者负责维护，
+供用户在有网络链接的情况下安装Gentoo。
+
+最小安装CD的文件名为 =install-amd64-minimal-<release>.iso= 。
+
+*** 临时LiveDVD
+有时候，Gentoo Ten项目会精心制作一个用于安装Gentoo的特别DVD版本。进一
+步减少安装步骤，可能和最小安装CD有一点不一样。然而，LiveDVD（或者其它
+的可启动的Linux环境）可能通过在终端输入 =sudo su -= 或者 =sudo -i= 来
+获取root权限。
+
+*** 用什么stages
+stage3是一个包含最小Gentoo环境的存档。适用本文档里的指令去安装Gentoo。
+以前，Gentoo手册说过可以使用3个包中的一个进行安装。虽然Gentoo依然支持
+stage1和stage2存档包进行安装，但正式的安装方法是用stage3进行安装。如果
+你对stage1和stage2安装感兴趣，请阅读Gentoo FAQ里的[[https://wiki.gentoo.org/wiki/FAQ#How_do_I_Install_Gentoo_Using_a_Stage1_or_Stage2_Tarball.3F][怎么用Stage1和Stage2
+安装Gentoo？]]
+
+Gentoo安装CD不提供Stage3，用户可以去任何一个[[https://www.gentoo.org/downloads/mirrors/][正式Gentoo镜像]]，
+releases/amd64/autobuilds目录下载Stage3。
