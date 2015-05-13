@@ -106,3 +106,28 @@ In the above example, the install-amd64-minimal-20141204.iso file is the minimal
     - A .DIGESTS.asc file which not only contains the hash of the ISO file (like the .DIGESTS file), but also a cryptographic signature of that file. This can be used to both verify if the downloaded ISO file is corrupt or not, as well as verify that the download is indeed provided by the Gentoo Release Engineering team and has not been tampered with.
 
 Ignore the other files available at this location for now - those will come back when the installation has proceeded further. Download the .ISO file and, if verification of the download is wanted, download the .DIGESTS.asc file for the ISO file as well. The .CONTENTS file does not need to be downloaded as the installation instructions will not refer to this file anymore, and the .DIGESTS file should contain the same information as the .DIGESTS.asc file, except that the latter also contains a signature on top of it.
+
+** Verifying the downloaded files
+#+BEGIN_QUOTE
+*Note*
+
+This is an optional step and not necessary to install Gentoo Linux. However, it is recommended as it ensures that the downloaded file is not corrupt and has indeed been provided by the Gentoo Infrastructure team.
+#+END_QUOTE
+
+Through the .DIGESTS and .DIGESTS.asc files, the validity of the ISO file can be confirmed using the right set of tools. This verification is usually done in two steps:
+
+  1. First, the cryptographic signature is validated to make sure that the installation file is provided by the Gentoo Release Engineering team
+  2. If the cryptographic signature validates, then the checksum is verified to make sure that the downloaded file itself is not corrupted
+
+** Microsoft Windows based verification
+On a Microsoft Windows system, chances are low that the right set of tools to verify checksums and cryptographic signatures are in place.
+
+To first verify the cryptographic signature, tools such as [[http://www.gpg4win.org/][GPG4Win]] can be used. After installation, the public keys of the Gentoo Release Engineering team need to be imported. The list of keys is available on the [[https://www.gentoo.org/downloads/signatures/][signatures page]]. Once imported, the user can then verify the signature of the .DIGESTS.asc file.
+
+#+BEGIN_QUOTE
+*Important*
+
+This does not verify that the .DIGESTS file is correct, only that the .DIGESTS.asc file is. That also implies that the checksum should be verified against the values in the .DIGESTS.asc file, which is why the instructions above only refer to downloading the .DIGESTS.asc file.
+#+END_QUOTE
+
+The checksum itself can be verified using the [[http://www.sinf.gr/en/hashcalc.html][Hashcalc application]], although many others exist as well. Most of the time, these tools will show the user the calculated checksum, and the user is requested to verify this checksum with the value that is inside the .DIGESTS.asc file.

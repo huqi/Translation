@@ -106,3 +106,28 @@ CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso
   - A.DIGESTS.asc文件不只包含了ISO文件的HASH值（像.DIGESTS文件那样），还加密了那个文件的签名信息。这个文件不仅能验证文件是否损坏，还能验证是否是Gentoo团队释出的版本，以防止被它人篡改。
 
 现在先忽略其它文件-接下来的安装中会用到他们时再说。先下载ISO映像，如果你想验证文件可靠性，也可以下载.DIGESTS.asc文件。我们不需要下载在接下来的安装中我们不用的.CONTENTS文件和.DIGESTS文件，因为我们已经有了加密了签名信息的.DIGESTS.asc文件。
+
+** 验证下载文件
+#+BGEIN_QUOTE
+*注释*
+
+在安装Gentoo Linux时，这是一个可选的步骤，但是还是推荐验证下载的文件以确保文件是由Gentoo团队提供的映像。
+#+END_QUOTE
+
+用合适的工具通过.DIGESTS和.DIGESTS.asc文件去验证ISO文件的正确性，验证的步骤如下：
+
+  1. 对数字签名进行验证，以确保是由Gentoo团队提供的安装文件
+  2. 如果数字签名验证正确，那么校验文件是否被损坏
+
+*** Windows验证
+在Windows系统中，不太容易在系统中找到合适的验证和数字签名工具。
+
+验证数字签名的工具可以使用[[http://www.gpg4win.org/][GPG4Win]]，安装完成后，先导入Gentoo团队的公钥，密钥列表可以在[[https://www.gentoo.org/downloads/signatures/][签名页面]]找到。导入后用户可以用.DIGESTS.asc文件进行验证。
+
+#+BEGIN_QUOTE
+*重要*
+
+这里是用.DIGESTS.asc文件验证而不是用.DIGESTS文件进行证。这也是为什么上面的说明只要求下载.DIESTS.asc文件。
+#+END_QUOTE
+
+校验文件可以使用[[http://www.sinf.gr/en/hashcalc.html][Hashcalc application]]，不过也有其它的一些工具可以使用，大多时候那些工具会显示文件的校验值，需要用户去核对.DIGESTS.asc文件里的校验值。
