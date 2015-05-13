@@ -1,0 +1,108 @@
+#+TITLE: Gentoo Linux amd64 Handbook: Installing Gentoo
+* Introduction
+** Welcome
+First of all, welcome to Gentoo. You are about to enter the world of choices and performance. Gentoo is all about choices. When installing Gentoo, this is made clear several times -- users can choose how much they want to compile themselves, how to install Gentoo, what system logger to use, etc.
+
+Gentoo is a fast, modern meta-distribution with a clean and flexible design. Gentoo is built around free software and doesn't hide from its users what is beneath the hood. Portage, the package maintenance system which Gentoo uses, is written in Python, meaning the user can easily view and modify the source code. Gentoo's packaging system uses source code (although support for precompiled packages is included too) and configuring Gentoo happens through regular text files. In other words, openness everywhere.
+
+It is very important that everybody understands that choices are what makes Gentoo run. We try not to force users onto anything they don't like. If anyone believes otherwise, please [[https://bugs.gentoo.org/][bugreport]] it.
+
+** How is instruction structured
+The Gentoo Installation can be seen as a 10-step procedure, corresponding to the next set of chapters. Every step results in a certain state:
+
+    1. After step 1, the user is in a working environment ready to install Gentoo
+    2. After step 2, the Internet connection is ready to install Gentoo
+    3. After step 3, the hard disks are initialized to host the Gentoo installation
+    4. After step 4, the installation environment is prepared and the user is ready to chroot into the new environment
+    5. After step 5, core packages, which are the same on all Gentoo installations, are installed
+    6. After step 6, the Linux kernel is installed
+    7. After step 7, the user will have configured most of the Gentoo system configuration files
+    8. After step 8, the necessary system tools are installed
+    9. After step 9, the proper boot loader has been installed and configured
+    10. After step 10, the freshly installed Gentoo Linux environment is ready to be explored
+
+Whenever a certain choice is presented, the handbook will try to explain what the pros and cons are. Although the text then continues with a default choice (identified by "Default: " in the title), the other possibilities will be documented as well (marked by "Alternative: " in the title). Do not think that the default is what Gentoo recommends. It is however what Gentoo believes most users will use.
+
+Sometimes an optional step can be followed. Such steps are marked as "Optional: " and are therefore not needed to install Gentoo. However, some optional steps are dependent on a previous decision made. The instructions will inform the reader when this happens, both when the decision is made, and right before the optional step is described.
+
+** What are the options
+Gentoo can be installed in many different ways. It can be downloaded and installed from one of Gentoo's Installation CDs, from a distribution already installed, from a non-Gentoo bootable CD (such as Knoppix), from a netbooted environment, from a rescue floppy, etc.
+
+This document covers the installation using a Gentoo Installation CD or, in certain cases, netbooting.
+
+#BEGIN_QUOTE
+*Note*
+
+For help on the other installation approaches, including using non-Gentoo CDs, please read our [[https://wiki.gentoo.org/wiki/Installation_alternatives][Alternative Installation Guide]].
+#END_QUOTE
+
+We also provide a [[https://wiki.gentoo.org/wiki/Gentoo_installation_tips_and_tricks][Gentoo Installation Tips & Tricks]] document that might be useful to read as well.
+
+** Troubles
+if a problem is found in the installation (or in the installation documentation), please visit our [[https://bugs.gentoo.org/][bugtracking system]] and check if the bug is known. If not, please create a [[https://bugs.gentoo.org/][bugreport]] for it so we can take care of it. Do not be afraid of the developers who are assigned to the bugs -- they (generally) don't eat people.
+
+Note though that, although this document is architecture-specific, it might contain references to other architectures as well. This is due to the fact that large parts of the Gentoo Handbook use source code that is common for all architectures (to avoid duplication of efforts and starvation of development resources). We will try to keep this to a minimum to avoid confusion.
+
+If there is some uncertainty whether or not the problem is a user-problem (some error made despite having read the documentation carefully) or a software-problem (some error we made despite having tested the installation/documentation carefully) everybody is welcome to join #gentoo on irc.freenode.net. Of course, everyone is welcome otherwise too as our chat channel covers the broad Gentoo spectrum.
+
+Speaking of which, if there are any additional questions regarding Gentoo, check out our [[https://wiki.gentoo.org/wiki/FAQ][Frequently Asked Questions]], available from the [[https://wiki.gentoo.org/wiki/Main_Page][Gentoo Wiki]]. There are also [[https://forums.gentoo.org/viewforum.php?f=40][FAQs]] on the [[https://forums.gentoo.org/][Gentoo Forums]].
+
+* Hardware requirements
+Before we start, we first list what hardware requirements are needed to successfully install Gentoo on a amd64 box.
+
+|           | Minimal CD                           | LiveDVD                                |
+| CPU       | Any AMD64 CPU or [[http://en.wikipedia.org/wiki/EMT64#Intel_64][EM64T]] CPU (Core 2 Duo & Quad processors are EM64T)      |
+| Memory    | 256 MB                               | 512 MB                                 |
+| Diskspace | 2.5 GB (excluding swap space)                                                 |
+| Swapspace | At least 256 MB                                                               |
+
+[[https://www.gentoo.org/proj/en/base/amd64/][The Gentoo AMD64 project site]] is a good place to be for more information about Gentoo's AMD64 support.
+
+* Gentoo Linux installation CD
+** Minimal installation CD
+The Gentoo minimal installation CD is a bootable CD which contains a self-sustained Gentoo environment. It allows the user to boot Linux from the CD. During the boot process the hardware is detected and the appropriate drivers are loaded. The CD is maintained by Gentoo developers and allows anyone to install Gentoo if an active Internet connection is available.
+
+The Minimal Installation CD is called /install-amd64-minimal-<release>.iso/.
+
+** The occasional Gentoo LiveDVD
+Occasionally, a special DVD is crafted by the Gentoo Ten project which can be used to install Gentoo. The instructions further down this chapter target the Minimal Installation CD so might be a bit different. However, the LiveDVD (or any other bootable Linux environment) supports getting a root prompt by just invoking =sudo su -= or =sudo -i= on a terminal.
+
+** What are stages then?
+A stage3 tarball is an archive containing a minimal Gentoo environment, suitable to continue the Gentoo installation using the instructions in this manual. Previously, the Gentoo Handbook described the installation using one of three stage tarballs. While Gentoo still offers stage1 and stage2 tarballs, the official installation method uses the stage3 tarball. If you are interested in performing a Gentoo installation using a stage1 or stage2 tarball, please read the Gentoo FAQ on [[https://wiki.gentoo.org/wiki/FAQ#How_do_I_Install_Gentoo_Using_a_Stage1_or_Stage2_Tarball.3F][How do I Install Gentoo Using a Stage1 or Stage2 Tarball]]?
+
+Stage3 tarballs can be downloaded from /releases/amd64/autobuilds/ on any of the [[https://www.gentoo.org/downloads/mirrors/][official Gentoo mirrors]] and are not provided by the installation CD.
+
+* Downloading and burning the CD Download the media
+** Download the media
+The default installation media that Gentoo Linux uses are the minimal installation CDs, which host a bootable, very small Gentoo Linux environment with the right tools to install Gentoo Linux from. The CD images themselves can be downloaded from one of the many mirrors available.
+
+On those mirrors, the minimal installation CDs can be found as follows:
+
+    1. Go to the releases/ directory
+    2. Select the right architecture, such as amd64/
+    3. Select the autobuilds/ directory
+    4. Select the current-iso/ directory
+
+Inside this location, the installation CD file is the file with the .iso suffix. For instance, take a look at the following listing:
+
+#+BEGIN_SRC
+CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso/
+
+[DIR] hardened/                                         05-Dec-2014 01:42 -
+[   ] install-amd64-minimal-20141204.iso                04-Dec-2014 21:04 208M
+[   ] install-amd64-minimal-20141204.iso.CONTENTS       04-Dec-2014 21:04 3.0K
+[   ] install-amd64-minimal-20141204.iso.DIGESTS        04-Dec-2014 21:04 740
+[TXT] install-amd64-minimal-20141204.iso.DIGESTS.asc    05-Dec-2014 01:42 1.6K
+[   ] stage3-amd64-20141204.tar.bz2                     04-Dec-2014 21:04 198M
+[   ] stage3-amd64-20141204.tar.bz2.CONTENTS            04-Dec-2014 21:04 4.6M
+[   ] stage3-amd64-20141204.tar.bz2.DIGESTS             04-Dec-2014 21:04 720
+[TXT] stage3-amd64-20141204.tar.bz2.DIGESTS.asc         05-Dec-2014 01:42 1.5K
+#+END_SRC
+
+In the above example, the install-amd64-minimal-20141204.iso file is the minimal installation CD itself. But as can be seen, other related files exist as well:
+
+    - A .CONTENTS file which is a text file listing all files available on the installation CD. This file can be useful to verify if particular firmware or drivers are available on the installation CD before downloading it.
+    - A .DIGESTS file which contains the hash of the ISO file itself, in various hashing formats/algorithms. This file can be used to verify if the downloaded ISO file is corrupt or not.
+    - A .DIGESTS.asc file which not only contains the hash of the ISO file (like the .DIGESTS file), but also a cryptographic signature of that file. This can be used to both verify if the downloaded ISO file is corrupt or not, as well as verify that the download is indeed provided by the Gentoo Release Engineering team and has not been tampered with.
+
+Ignore the other files available at this location for now - those will come back when the installation has proceeded further. Download the .ISO file and, if verification of the download is wanted, download the .DIGESTS.asc file for the ISO file as well. The .CONTENTS file does not need to be downloaded as the installation instructions will not refer to this file anymore, and the .DIGESTS file should contain the same information as the .DIGESTS.asc file, except that the latter also contains a signature on top of it.
