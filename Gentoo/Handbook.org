@@ -1,0 +1,5 @@
+* Handbook
+  URL:https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation
+
+  - [[Https://github.com/huqi/Translation/blob/master/Gentoo/Handbook_en_US.org][Handbook_en_US.org]]
+  - [[https://github.com/huqi/Translation/blob/master/Gentoo/Handbook_zh_CN.org][Handbook_zh_CN.org]]
