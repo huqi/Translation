@@ -153,7 +153,7 @@ CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso
 首先，下[[https://www.gentoo.org/downloads/signatures/][密钥页面]]上正确的密钥：
 
 #+BEGIN_SRC
-user $gpg --recv-keys 0xBB572E0E2D182910
+user $ gpg --recv-keys 0xBB572E0E2D182910
 
 gpg: requesting key 0xBB572E0E2D182910 from hkp server pool.sks-keyservers.net
 gpg: key 0xBB572E0E2D182910: "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" 1 new signature
@@ -168,7 +168,7 @@ gpg:         new signatures: 1
 然后，验证.DIGESTS.asc文件中的数字签名：
 
 #+BEGIN_SRC
-user $gpg --verify install-amd64-minimal-20141204.iso.DIGESTS.asc
+user $ gpg --verify install-amd64-minimal-20141204.iso.DIGESTS.asc
 
 gpg: Signature made Fri 05 Dec 2014 02:42:44 AM CET
 gpg:                using RSA key 0xBB572E0E2D182910
@@ -183,7 +183,7 @@ Primary key fingerprint: 13EB BDBE DE7A 1277 5DFD  B1BA BB57 2E0E 2D18 2910
 验证完数字签名后，下一步校验ISO文件完整性。.DIGESTS.asc文件包含多种HASH算法的校验值，所以验证文件完整性的方法是确认在.DIGESTS.asc文件中某算法的值，例如SHA512校验：
 
 #+BEGIN_SRC
-user $grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
+user $ grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
 
 # SHA512 HASH
 364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
@@ -195,7 +195,7 @@ user $grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
 上面的输出显示了两个SHA512校验值，一个是install-amd64-minimal-20141204.iso文件的校验值，一个是对应的.CONTENTS文件的校验值。我们只需要第一个值和我们计算的文件的校验值进行对比，我们可以用如下的命令去计算文件校验值：
 
 #+BEGIN_SRC
-user $sha512sum install-amd64-minimal-20141204.iso
+user $ sha512sum install-amd64-minimal-20141204.iso
 
 364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
 #+END_SRC
@@ -220,7 +220,79 @@ user $sha512sum install-amd64-minimal-20141204.iso
 例如，刻录ISO文件到/dev/sr0设备（这是系统里的第一个CD设备，如果有需要请替换成正确的设备文件）：
 
 #+BEGIN_SRC
-user $cdrecord dev=/dev/sr0 install--minimal-20141204.iso
+user $ cdrecord dev=/dev/sr0 install--minimal-20141204.iso
 #+END_SRC
 
 用户可以选择[[http://packages.gentoo.org/package/app-cdr/k3b][app-cdr/k3b]]软件包中图形界面的刻录工具K3B，在K3B软件中，选择工具，刻录CD映像。然后根据接下来的提示进行操作。
+
+* 启动CD
+
+** 启动安装CD
+
+如果已经刻录了CD，那么我们就可以由CD启动了。移除CD设备里的所有CD，重新启动系统进入BIOS或者UEFI。依照主板和所使用的系统一般是安 =DEL= ， =F1= 或者 =ESC= 进入。在BIOS或者UEFI的菜单里面，修改CD-ROM优先于硬盘启动。如果不这样修改，系统会忽略CD-ROM由硬盘启动。
+
+#+BEGIN_QUOTE
+*重要*
+
+当安装Gentoo的目的是以使用UEFI接口替代BIOS时，建议立即由UEFI启动。如果不这么做，可能在安装完Gentoo Linux后，需要创建一个UEFI USB启动盘（或者其它媒介）。
+/这段有问题/
+#+END_QUOTE
+
+现在把安装CD装入到CD-ROM里并启动。会出现一个启动提示符。在这个界面上，按 =Enter= 会以默认的选项启动系统。可以自定义启动选项，指定内核并输入 =Enter= 继续。
+
+在启动提示符上，用户可以按显示可用内核（ =F1= ）和启动选项（ =F2= ）。如果15秒内没有选择（即没有选择内核，也没有显示信息），系统会从硬盘启动。这允许用户在不移除CD的情况下尝试他们已经安装的环境（试用于远程安装）。
+
+我们提到的的指定内核。在安装CD上有好几种内核提供选择。默认的是gentoo。其它内核对于特殊的硬件需要用 /-nofb/ 的变种内核关闭帧缓存支持。
+
+下面这个表格简短的列出了可用的内核。
+
+| Kernel      | Description                                           |
+|-------------+-------------------------------------------------------|
+| gentoo      | 默认的内核，支持K8处理器（包含NUMA支持）和EM64T处理器 |
+| gentoo-nofb | 和gentoo一样，但不支持帧缓冲                          |
+| memtest86   | 测试本地RAM                                           |
+
+和内核一起，启动选项有助于进一步优化引导过程。
+
+|             | 硬件选项                                                                                                                                                                                                                            |
+|-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| acpi=on     | 这个选项加载ACPI，从CD启动时加载acpid守护进程。这只有在需要系统要求ACPI功能正常时使用，它不需要超线程支持。                                                                                                                         |
+| acpi=off    | 宛全关闭ACPI。这对一些旧的硬件很有用并且是使用APM的必要条件。这也会关闭所有处理的所有超线程支持。                                                                                                                                   |
+| console=X   | 这个选项是设置CD的串接设备访问，第一个选项是设备，在x86上一般是ttyS0，后面是用逗号分隔的连接选项。默认的选项是9600,8,n,1。                                                                                                          |
+| dmraid=X    | 这个选项允许传递参数到RAID子系统。参数需要引号。                                                                                                                                                                                    |
+| doapm       | 这个选项加载APM驱动，需要设置 =acpi=off= 。                                                                                                                                                                                         |
+| dopcmcia    | 这个选项加载了PCMCIA和Cardbus硬件驱动，可以在CD启动的同时启动pcmia和cardmgr。这只在从PCMCIA/Cardbus设备启动时才需要。                                                                                                               |
+| doscsi      | 这个选项支持多数的SCSI控制器。这也是启动USB设备的必要选项，因为它们使用了系统内核的SCSI子系统。                                                                                                                                     |
+| sda=stroke  | 这个选项在BIOS不支持大存储器的时候，可以给整个硬盘分区。这个选项只在早期的BIOS系统中有用。在这个选项中把sda替换成需要的设备。                                                                                                       |
+| ide=nodma   | 这个选项强制内核关闭DMA。并且需要一些IDE芯片组接口的CDROM驱动器，如果从IDE接口的CDROM读取信息有问题，可以试试这个选项，这同时关闭了hdparm的默认设备。                                                                               |
+| noapic      | 这个选项禁用了目前只有较新的主板才有的高级可编程中断控制器，已经知道这个功能会导致一些旧设备出现问题。                                                                                                                              |
+| nodetect    | 这个选项关闭了CD的自动检测功能，包括检测硬件和DHCP探测，这对调试有问题的CD或者驱动有用。                                                                                                                                            |
+| nodhcp      | 这个选项关闭网卡的DHCP探测功能，这个在固定地址网络中很有用。                                                                                                                                                                        |
+| nodmraid    | 这个选项关闭RAID设备映射支持，例如用于板载的IDE/SATA RAID控制器。                                                                                                                                                                   |
+| nofirewire  | 这个选项关闭Firewire模块。如果在CD启动时你的Firewire引起了问题可以使用这个选项。                                                                                                                                                    |
+| nogpm       | 这个选项关闭控制台gpm鼠标支持。                                                                                                                                                                                                     |
+| nohotplug   | 这个选项关闭启动时热插拔和冷插拔初始化脚本。这对调试有问题的CD或驱动有用。                                                                                                                                                          |
+| nokeymap    | 这个选项关闭非美国键盘的键位选择。                                                                                                                                                                                                  |
+| nolapic     | 这个选项关闭单处理器内核上的APIC。                                                                                                                                                                                                  |
+| nosata      | 这个选项关闭ATA系列模块。在SATA子系统出现问题时使用。                                                                                                                                                                               |
+| nosmp       | 这个选项在打开SMP的内核上，关闭SMP或者对称式的多处理器功能，这对选定驱动和主板上调试SMP相关问题有用。                                                                                                                               |
+| nosound     | 这个选项关闭声音支持和音量设置。对声音引起问题时有用。                                                                                                                                                                              |
+| nousb       | 这个选项关闭USB模块自动加载。对调试USB问题有用。                                                                                                                                                                                    |
+| slowusb     | 这在启动时为慢速USB、CDROM设备增加了一些额外的暂停，例如IBM BladeCenter。                                                                                                                                                           |
+|-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|             | 逻辑卷/设备管理                                                                                                                                                                                                                     |
+|-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| dolvm       | 这个选项支持Linux逻辑卷管理器。                                                                                                                                                                                                     |
+|-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|             | 其它选项                                                                                                                                                                                                                            |
+|-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| debug       | 打开调试代码。这会导致屏幕输出一些凌乱的信息。                                                                                                                                                                                      |
+| docache     | 这个选项会把CD完整的运行时环境加载到RAM中，允许用户卸载/mnt/cdrom并加载其它CDROM。这个选项要求内存最少要有CD的两倍大。                                                                                                              |
+| doload=X    | 这个选项在ramdisk初始化时加载任何模块以及依赖关系，用模块名称替换X，多个模块名用逗号分隔。                                                                                                                                          |
+| dosshd      | 这个选项在启动时开启sshd，这对远程安装有用。                                                                                                                                                                                        |
+| passwd=foo  | 这个选项设置root密码，当root密码是默认时对dosshd必要.                                                                                                                                                                               |
+| noload=X    | 这个选项让ramdisk初始化时跳过加载可能引起问题的指定模块，语法和doload一样。                                                                                                                                                         |
+| nonfs       | 这个选项在启动时关闭portmap/nfsmount。                                                                                                                                                                                              |
+| nox         | 这个选项让自动启动X环境的LiveCD不自动启动X，而是使用命令行。                                                                                                                                                                        |
+| scandelay   | 这个选项在启动过程暂停10秒，让一些特定的部分允许硬件慢慢进行初始化以便使用。                                                                                                                                                            |
+| scandelay=X | 这个选项允许用户设置一个延时.让一些特定的部分允许硬件慢慢进行初始化以便使用。用秒数替换X。 |

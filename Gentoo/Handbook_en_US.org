@@ -153,7 +153,7 @@ On a Linux system, the most common method for verifying the cryptographic signat
 First, download the right set of keys as made available on the signatures page:
 
 #+BEGIN_SRC
-user $gpg --recv-keys 0xBB572E0E2D182910
+user $ gpg --recv-keys 0xBB572E0E2D182910
 
 gpg: requesting key 0xBB572E0E2D182910 from hkp server pool.sks-keyservers.net
 gpg: key 0xBB572E0E2D182910: "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" 1 new signature
@@ -168,7 +168,7 @@ gpg:         new signatures: 1
 Next verify the cryptographic signature of the .DIGESTS.asc file:
 
 #+BEGIN_SRC
-user $gpg --verify install-amd64-minimal-20141204.iso.DIGESTS.asc
+user $ gpg --verify install-amd64-minimal-20141204.iso.DIGESTS.asc
 
 gpg: Signature made Fri 05 Dec 2014 02:42:44 AM CET
 gpg:                using RSA key 0xBB572E0E2D182910
@@ -183,7 +183,7 @@ To be absolutely certain that everything is valid, verify the fingerprint shown 
 With the cryptographic signature validated, next verify the checksum to make sure the downloaded ISO file is not corrupted. The .DIGESTS.asc file contains multiple hashing algorithms, so one of the methods to validate the right one is to first look at the checksum registered in the .DIGESTS.asc file. For instance, to get the SHA512 checksum:
 
 #+BEGIN_SRC
-user $grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
+user $ grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
 
 # SHA512 HASH
 364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
@@ -195,7 +195,7 @@ user $grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
 In the above output, two SHA512 checksums are shown - one for the install-amd64-minimal-20141204.iso file and one for its accompanying .CONTENTS file. Only the first checksum is of interest, as it needs to be compared with the calculated SHA512 checksum which can be generated as follows:
 
 #+BEGIN_SRC
-user $sha512sum install-amd64-minimal-20141204.iso
+user $ sha512sum install-amd64-minimal-20141204.iso
 
 364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
 #+END_SRC
@@ -220,7 +220,81 @@ On Linux, the ISO file can be burned on a CD using the =cdrecord= command, part 
 For instance, to burn the ISO file on the CD in the /dev/sr0 device (this is the first CD device on the system - substitute with the right device file if necessary):
 
 #+BEGIN_SRC
-user $cdrecord dev=/dev/sr0 install--minimal-20141204.iso
+user $ cdrecord dev=/dev/sr0 install--minimal-20141204.iso
 #+END_SRC
 
 Users that prefer a graphical user interface can use K3B, part of the [[http://packages.gentoo.org/package/app-cdr/k3b][app-cdr/k3b]] package. In K3B, go to Tools and use Burn CD Image. Then follow the instructions provided by K3B.
+
+* Booting the CD
+
+** Booting the installation CD
+
+Once the installation CD is burned, it is time to boot it. Remove all CDs from the CD drives, reboot the system and enter the BIOS or UEFI. This is usually done by hitting =DEL=, =F1= or =ESC=, which is highly depending on the system and motherboard used. Inside the BIOS or UEFI menu, change the boot order so that the CD-ROM is tried before the hard disk. Without this change, the system will just reboot from the hard disk, ignoring the CD-ROM.
+
+#+BEGIN_QUOTE
+*Important*
+
+When installing Gentoo with the purpose of using the UEFI interface instead of BIOS, it is recommended to boot with UEFI immediately. If not, then it might be necessary to create a bootable UEFI USB stick (or other medium) once before finalizing the Gentoo Linux installation.
+#+END_QUOTE
+
+Now place the installation CD in the CD-ROM drive and reboot. A boot prompt should be shown. At this screen, =Enter= will begin the boot process with the default boot options. To boot the installation CD with custom boot options, specify a kernel followed by boot options and then hit =Enter=.
+
+At the boot prompt, users get the option of displaying the available kernels (=F1=) and boot options (=F2=). If no choice is made within 15 seconds (either displaying information or using a kernel) then the installation CD will fall back to booting from disk. This allows installations to reboot and try out their installed environment without the need to remove the CD from the tray (something well appreciated for remote installations).
+
+We mentioned specifying a kernel. On the installation CD, several
+kernels are provided. The default one is called gentoo. Other kernels
+are for specific hardware needs and the /-nofb/ variants disable
+framebuffer support.
+
+The next table gives a short overview of the available kernels.
+
+| Kernel      | Description                                                                     |
+|-------------+---------------------------------------------------------------------------------|
+| gentoo      | Default kernel with support for K8 CPUs (including NUMA support) and EM64T CPUs |
+| gentoo-nofb | Same as gentoo but without framebuffer support                                  |
+| memtest86   | Test the local RAM for errors                                                   |
+
+Alongside the kernel, boot options help in tuning the boot process further.
+
+|             | Hardware options                                                                                                                                                                                                                                                    |
+|-------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| acpi=on     | This loads support for ACPI and also causes the acpid daemon to be started by the CD on boot. This is only needed if the system requires ACPI to function properly. This is not required for Hyperthreading support.                                                |
+| acpi=off    | Completely disables ACPI. This is useful on some older systems and is also a requirement for using APM. This will disable any Hyperthreading support of your processor.                                                                                             |
+| console=X   | This sets up serial console access for the CD. The first option is the device, usually ttyS0 on x86, followed by any connection options, which are comma separated. The default options are 9600,8,n,1.                                                             |
+| dmraid=X    | This allows for passing options to the device-mapper RAID subsystem. Options should be encapsulated in quotes.                                                                                                                                                      |
+| doapm       | This loads APM driver support. This also requires that =acpi=off=.                                                                                                                                                                                                  |
+| dopcmcia    | This loads support for PCMCIA and Cardbus hardware and also causes the pcmcia cardmgr to be started by the CD on boot. This is only required when booting from PCMCIA/Cardbus devices.                                                                              |
+| doscsi      | This loads support for most SCSI controllers. This is also a requirement for booting most USB devices, as they use the SCSI subsystem of the kernel.                                                                                                                |
+| sda=stroke  | This allows the user to partition the whole hard disk even when the BIOS is unable to handle large disks. This option is only used on machines with an older BIOS. Replace sda with the device that requires this option.                                           |
+| ide=nodma   | This forces the disabling of DMA in the kernel and is required by some IDE chipsets and also by some CDROM drives. If the system is having trouble reading from the IDE CDROM, try this option. This also disables the default hdparm settings from being executed. |
+| noapic      | This disables the Advanced Programmable Interrupt Controller that is present on newer motherboards. It has been known to cause some problems on older hardware.                                                                                                     |
+| nodetect    | This disables all of the autodetection done by the CD, including device autodetection and DHCP probing. This is useful for doing debugging of a failing CD or driver.                                                                                               |
+| nodhcp      | This disables DHCP probing on detected network cards. This is useful on networks with only static addresses.                                                                                                                                                        |
+| nodmraid    | Disables support for device-mapper RAID, such as that used for on-board IDE/SATA RAID controllers.                                                                                                                                                                  |
+| nofirewire  | This disables the loading of Firewire modules. This should only be necessary if your Firewire hardware is causing a problem with booting the CD.                                                                                                                    |
+| nogpm       | This disables gpm console mouse support.                                                                                                                                                                                                                            |
+| nohotplug   | This disables the loading of the hotplug and coldplug init scripts at boot. This is useful for doing debugging of a failing CD or driver.                                                                                                                           |
+| nokeymap    | This disables the keymap selection used to select non-US keyboard layouts.                                                                                                                                                                                          |
+| nolapic     | This disables the local APIC on Uniprocessor kernels.                                                                                                                                                                                                               |
+| nosata      | This disables the loading of Serial ATA modules. This is used if the system is having problems with the SATA subsystem.                                                                                                                                             |
+| nosmp       | This disables SMP, or Symmetric Multiprocessing, on SMP-enabled kernels. This is useful for debugging SMP-related issues with certain drivers and motherboards.                                                                                                     |
+| nosound     | This disables sound support and volume setting. This is useful for systems where sound support causes problems.                                                                                                                                                     |
+| nousb       | This disables the autoloading of USB modules. This is useful for debugging USB issues.                                                                                                                                                                              |
+| slowusb     | This adds some extra pauses into the boot process for slow USB CDROMs, like in the IBM BladeCenter.                                                                                                                                                                 |
+|-------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|             | Logical volume/device management                                                                                                                                                                                                                                    |
+|-------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| dolvm       | This enables support for Linux's Logical Volume Management.                                                                                                                                                                                                         |
+|-------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|             | Other options                                                                                                                                                                                                                                                       |
+|-------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| debug       | Enables debugging code. This might get messy, as it displays a lot of data to the screen.                                                                                                                                                                           |
+| docache     | This caches the entire runtime portion of the CD into RAM, which allows the user to umount /mnt/cdrom and mount another CDROM. This option requires that there is at least twice as much available RAM as the size of the CD.                                       |
+| doload=X    | This causes the initial ramdisk to load any module listed, as well as dependencies. Replace X with the module name. Multiple modules can be specified by a comma-separated list.                                                                                    |
+| dosshd      | Starts sshd on boot, which is useful for unattended installs.                                                                                                                                                                                                       |
+| passwd=foo  | Sets whatever follows the equals as the root password, which is required for dosshd since the root password is by default scrambled.                                                                                                                                |
+| noload=X    | This causes the initial ramdisk to skip the loading of a specific module that may be causing a problem. Syntax matches that of doload.                                                                                                                              |
+| nonfs       | Disables the starting of portmap/nfsmount on boot.                                                                                                                                                                                                                  |
+| nox         | This causes an X-enabled LiveCD to not automatically start X, but rather, to drop to the command line instead.                                                                                                                                                      |
+| scandelay   | This causes the CD to pause for 10 seconds during certain portions the boot process to allow for devices that are slow to initialize to be ready for use.                                                                                                           |
+| scandelay=X | This allows the user to specify a given delay, in seconds, to be added to certain portions of the boot process to allow for devices that are slow to initialize to be ready for use. Replace X with the number of seconds to pause.                                 |
