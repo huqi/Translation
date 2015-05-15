@@ -1,5 +1,5 @@
-* Handbook
+* 手册
   URL:https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation
 
-  - [[Https://github.com/huqi/Translation/blob/master/Gentoo/Handbook_en_US.org][Handbook_en_US.org]]
-  - [[https://github.com/huqi/Translation/blob/master/Gentoo/Handbook_zh_CN.org][Handbook_zh_CN.org]]
+  - [[Https://github.com/huqi/Translation/blob/master/Gentoo/Gentoo_AMD64_Handbook_Installing_en_US.org][Gentoo Linux amd64 Handbook: Installing Gentoo（英文）]]
+  - [[https://github.com/huqi/Translation/blob/master/Gentoo/Gentoo_AMD64_Handbook_Installing_zh_CN.org][Gentoo Linux amd64 Handbook: Installing Gentoo（中文）]]
