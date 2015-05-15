@@ -389,3 +389,72 @@ If users log on to the system, they will get a message that the host key for thi
 
 To be able to use sshd, the network needs to function
 properly. Continue with the chapter on [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Networking][Configuring the network]].
+
+* Automatic network detection
+
+Maybe it just works?
+
+If the system is plugged into an Ethernet network with a DHCP server, it is very likely that the networking configuration has already been set up automatically. If so, then the many included network-aware commands on the installation CD such as =ssh=, =scp=, =ping=, =irssi=, =wget= and =links=, among others, will work immediately.
+
+If networking has been configured, the =ifconfig= command should list some network interfaces besides =lo=, such as =eth0=:
+
+#+BEGIN_SRC
+root # ifconfig
+
+(...)
+eth0      Link encap:Ethernet  HWaddr 00:50:BA:8F:61:7A
+          inet addr:192.168.0.2  Bcast:192.168.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::50:ba8f:617a/10 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:1498792 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1284980 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:1984 txqueuelen:100
+          RX bytes:485691215 (463.1 Mb)  TX bytes:123951388 (118.2 Mb)
+          Interrupt:11 Base address:0xe800 
+#+END_SRC
+
+The interface name on the system can be quite different from =eth0=. Recent installation media might show regular network interfaces names like =eno0=, =ens1= or =enp5s0=. Just seek the interface in the ifconfig output that has an IP address related to the local network.
+
+In the remainder of this document, we will assume that the interface is called =eth0=. 
+
+** Optional: Configure any proxies
+
+If the Internet is accessed through a proxy, then it is necessary to set up proxy information during the installation. It is very easy to define a proxy: just define a variable which contains the proxy server information.
+
+In most cases, it is sufficient to define the variables using the server hostname. As an example, we assume the proxy is called proxy.gentoo.org and the port is 8080.
+
+To set up an HTTP proxy (for HTTP and HTTPS traffic):
+
+#+BEGIN_SRC
+root # export http_proxy="http://proxy.gentoo.org:8080"
+#+END_SRC
+
+To set up an FTP proxy:
+
+#+BEGIN_SRC
+root # export ftp_proxy="ftp://proxy.gentoo.org:8080"
+#+END_SRC
+
+To set up an RSYNC proxy:
+
+#+BEGIN_SRC
+root #export RSYNC_PROXY="proxy.gentoo.org:8080"
+#+END_SRC
+
+If the proxy requires a username and password, use the following syntax for the variable:
+
+#+BEGIN_QUOTE
+CODE Adding username/password to the proxy variable
+
+http://username:password@proxy.gentoo.org:8080
+#+END_QUOTE
+
+** Testing the network
+
+Try pinging your ISP's DNS server (found in /etc/resolv.conf) and a web site of choice. This ensures that the network is functioning properly and that the network packets are reaching the net, DNS name resolution is working correctly, etc.
+
+#+BEGIN_SRC
+root # ping -c 3 www.gentoo.org
+#+END_SRC
+
+If this all works, then the remainder of this chapter can be skipped to jump right to the next step of the installation instructions (Preparing the disks).

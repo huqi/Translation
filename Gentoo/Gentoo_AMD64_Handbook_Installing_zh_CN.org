@@ -379,3 +379,72 @@ root # /etc/init.d/sshd start
 #+END_QUOTE
 
 为了能够使用sshd，网络功能必须正常。可以继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Networking][网络配置]]。
+
+* 自动检测网络
+
+已经可以工作了？
+
+如果系统已经加入到一个带有DHCP服务的以太网，网络很可能已经自动设置好了。如果是这样，那么在安装CD上许多网络命令是可以使用的，像 =ssh= 、 =scp= 、 =ping= 、 =irrssi= 、 =wget= 和 =links= 可以以立即工作。
+
+如果网络已经成功设置， =ifconfig= 命令可以列出除 =lo= 以外的一些网络接口，例如 =eth0= ：
+
+#+BEGIN_SRC
+root # ifconfig
+
+(...)
+eth0      Link encap:Ethernet  HWaddr 00:50:BA:8F:61:7A
+          inet addr:192.168.0.2  Bcast:192.168.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::50:ba8f:617a/10 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:1498792 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1284980 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:1984 txqueuelen:100
+          RX bytes:485691215 (463.1 Mb)  TX bytes:123951388 (118.2 Mb)
+          Interrupt:11 Base address:0xe800 
+#+END_SRC
+
+在系统上显示的接口名可能不同于 =eth0= 。最近安装的介质可能显示正正式的网络接口名称，像 =eno0= 、 =ens1= 或者 =enp5s0= 。你可以找到和本地网络IP地址相关的网络接口名。
+
+在接下来的文档中，我们假设接口名为 =eth0= 。
+
+** 选项：设置代理
+
+如果想通过代理连接网络，那么需要在安装的时候设置一下代理，非常简单：只需要定义一个包含代理服务信息的变量就可以。
+
+大多数情况下，定义一个服务器主机名的变量就可以了。例如，我们假设代理地址是proxy.gentoo.org端口是8080。
+
+设置一个HTTP代理（HTTP和HTTPS协议）：
+
+#+BEGIN_SRC
+root # export http_proxy="http://proxy.gentoo.org:8080"
+#+END_SRC
+
+设置一个FTP代理：
+
+#+BEGIN_SRC
+root # export ftp_proxy="ftp://proxy.gentoo.org:8080"
+#+END_SRC
+
+设置一个RSYNC代理：
+
+#+BEGIN_SRC
+root #export RSYNC_PROXY="proxy.gentoo.org:8080"
+#+END_SRC
+
+如果代理需要用户名和密码，用下面的语法设置这个变量：
+
+#+BEGIN_QUOTE
+*代码* 在代理变量中加入用户名和密码
+
+http://username:password@proxy.gentoo.org:8080
+#+END_QUOTE
+
+** 测试网络
+
+尝试去侦测你网络提供商的DNS服务器（在/etc/resolv.conf中找到）和某个网站。这用来确认网络功能正常，网络数据包传输正常，DNS解析服务正常等。
+
+#+BEGIN_SRC
+root # ping -c 3 www.gentoo.org
+#+END_SRC
+
+如果一切顺利，可以跳过本章节的余下部分，直到下一步安装指令（准备磁盘）。
