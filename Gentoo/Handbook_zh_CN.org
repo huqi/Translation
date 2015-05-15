@@ -35,7 +35,7 @@ Gentoo可以用很多方式进行安装。可以通过下载Gentoo光盘安装�
 本文档包含了通过安装光盘安装，同时也包含了一些网络安装的方法。
 
 #+BEGIN_QUOTE
-*注释*
+*备注*
 
 其它方式安装的帮助，包括非Gentoo安装光盘的安装方法，请查看[[https://wiki.gentoo.org/wiki/Installation_alternatives][其它安装指南]]
 #+END_QUOTE
@@ -122,7 +122,7 @@ CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso
 ** 验证下载文件
 
 #+BGEIN_QUOTE
-*注释*
+*备注*
 
 在安装Gentoo Linux时，这是一个可选的步骤，但是还是推荐验证下载的文件以确保文件是由Gentoo团队提供的映像。
 #+END_QUOTE
@@ -256,7 +256,7 @@ user $ cdrecord dev=/dev/sr0 install--minimal-20141204.iso
 
 |             | 硬件选项                                                                                                                                                                                                                            |
 |-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| acpi=on     | 这个选项加载ACPI，从CD启动时加载acpid守护进程。这只有在需要系统要求ACPI功能正常时使用，它不需要超线程支持。                                                                                                                         |
+| acpi=on     | 这个选项加载ACPI，从CD启动时加载acpid服务。这只有在需要系统要求ACPI功能正常时使用，它不需要超线程支持。                                                                                                                           |
 | acpi=off    | 宛全关闭ACPI。这对一些旧的硬件很有用并且是使用APM的必要条件。这也会关闭所有处理的所有超线程支持。                                                                                                                                   |
 | console=X   | 这个选项是设置CD的串接设备访问，第一个选项是设备，在x86上一般是ttyS0，后面是用逗号分隔的连接选项。默认的选项是9600,8,n,1。                                                                                                          |
 | dmraid=X    | 这个选项允许传递参数到RAID子系统。参数需要引号。                                                                                                                                                                                    |
@@ -296,3 +296,86 @@ user $ cdrecord dev=/dev/sr0 install--minimal-20141204.iso
 | nox         | 这个选项让自动启动X环境的LiveCD不自动启动X，而是使用命令行。                                                                                                                                                                        |
 | scandelay   | 这个选项在启动过程暂停10秒，让一些特定的部分允许硬件慢慢进行初始化以便使用。                                                                                                                                                            |
 | scandelay=X | 这个选项允许用户设置一个延时.让一些特定的部分允许硬件慢慢进行初始化以便使用。用秒数替换X。 |
+
+#+BEGIN_QUOTE
+*备注*
+
+CD会优先检查 =no*= 选项，再检查 =do*= 选项，所以可以重写指定选项的确切顺序。
+#+END_QUOTE
+
+现在启动CD，选择一个内核和启动选项（如果默认的 =gentoo= 内核不能满足）。例如，我们用 =Gentoo= 内核和 =dopcmicia= 选项：
+
+#+BEGIN_SRC
+boot: gentoo dopcmcia
+#+END_SRC
+
+接下来用户会见到启动界面和进度条。如果用户使用的是非美式键盘，要立即按 =Alt= + =F1= 切换到确认详细模式并且提示操作。如果在10秒钟内没有进行选择，系统会用默认（美式键盘）的键位设置继续安装。一旦启动完成，用户将以超级root身份登录到“LIVE”Gentoo Linux环境。控制台会显示root提示符，可以按 =Alt= + =F2= ， =Alt= + =F3= ， =Alt= + =F4= 切换控制台。按 =Alt= + =F1= 可以回到开始的控制台。
+
+** 额外的硬件配置
+
+当安装CD启动时，会尝试检测所有的硬件，然后加载合适的内存模块。在大多数情况下，会工作的很顺利。然而有些情况下可能不能正常加载系统所需的模块。如果PCI自动检测漏掉了一些系统硬件，必须要手动加载合适的内核模块。
+
+下面的例子是加载8139模块（支持某些网络接口）：
+
+#+BEGIN_SRC
+root # modprobe 8139too
+#+END_SRC
+
+** 选项：用户账户
+
+如果其它人要进入安装环境，或者在安装CD上需要用一个普通帐户执行命令（例如用 =irssi= 聊天而为了安全原因不用root权限），那么需要新建一个用户并给root用户设置一个密码。
+
+更改密码，用passwd程序：
+
+#+BEGIN_SRC
+root # passwd
+New password: (Enter your new password)
+Re-enter password: (Re-enter your password)
+#+END_SRC
+
+新建一个用户账户，首先输入权限，随后输入帐户密码。用 =useradd= 和 =passwd= 命令操作。
+
+下面的例子，创建一个叫 /john/ 的用户：
+
+#+BEGIN_SRC
+root # useradd -m -G users john
+root # passwd john
+New password: (Enter john's password)
+Re-enter password: (Re-enter john's password)
+#+END_SRC
+
+从root帐户（当前帐户）切换到新建账户，用 =su= 命令：
+
+#+BEGIN_SRC
+root # su - john
+#+END_SRC
+
+** 选项：在安装时查看文档
+
+在安装的时候查看Gentoo手册，首先像上面说的那样创建一个账户。然后按 =Alt= + =F2= 切换到一个新的终端。
+
+在安装的过程中， =links= 使用可以用来查看Gentoo手册——当然只有在网络正常工作时可用。
+
+#+BEGIN_SRC
+user $ links https://wiki.gentoo.org/wiki/Handbook:AMD64
+#+END_SRC
+
+按 =Alt= + =F1= 回到原来的终端。
+
+** 选项：启动SSH服务
+
+如果想在安装的过程中允许其它用户进入系统（也许是帮助安装，甚至是运程安装），需要创建一个新的帐户（见上面的文档）并且开启SSH服务。
+
+用如下命令启动SSH服务：
+
+#+BEGIN_SRC
+root # /etc/init.d/sshd start
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+如果用户登录到系统，他们会得到一个主机密钥（指纹）。主机密钥标识第一次登录到系统的用户。然而，稍后当系统安装完成时，有人登录到新的系统，SSH客户端为警告主机密钥已经被更改，这是因为用户已经登录了一个不同的服务器（即新的已安装的Gentoo系统而不是用于安装的Live环境），按照提示信息在客户端上替换主机密钥。
+#+END_QUOTE
+
+为了能够使用sshd，网络功能必须正常。可以继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Networking][网络配置]]。

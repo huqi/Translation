@@ -298,3 +298,94 @@ Alongside the kernel, boot options help in tuning the boot process further.
 | nox         | This causes an X-enabled LiveCD to not automatically start X, but rather, to drop to the command line instead.                                                                                                                                                      |
 | scandelay   | This causes the CD to pause for 10 seconds during certain portions the boot process to allow for devices that are slow to initialize to be ready for use.                                                                                                           |
 | scandelay=X | This allows the user to specify a given delay, in seconds, to be added to certain portions of the boot process to allow for devices that are slow to initialize to be ready for use. Replace X with the number of seconds to pause.                                 |
+
+#+BEGIN_QUOTE
+*Note*
+
+The CD will check for =no*= options before =do*= options, so that options can be overriden in the exact order specified.
+#+END_QUOTE
+
+Now boot the CD, select a kernel (if the default =gentoo= kernel does
+not suffice) and boot options. As an example, we boot the =gentoo=
+kernel, with =dopcmcia= as a kernel parameter:
+
+#+BEGIN_SRC
+boot: gentoo dopcmcia
+#+END_SRC
+
+Next the user will be greeted with a boot screen and progress bar. If the installation is done on a system with a non-US keyboard, make sure to immediately press =Alt= + =F1= to switch to verbose mode and follow the prompt. If no selection is made in 10 seconds the default (US keyboard) will be accepted and the boot process will continue. Once the boot process completes, the user is automatically logged in to the "Live" Gentoo Linux environment as the root user, the super user. A root prompt is displayed on the current console, and one can switch to other consoles by pressing =Alt= + =F2=, =Alt= + =F3= and =Alt= + =F4=. Get back to the one started on by pressing =Alt= + =F1=.
+
+** Extra hardware configuration
+
+When the Installation CD boots, it tries to detect all the hardware devices and loads the appropriate kernel modules to support the hardware. In the vast majority of cases, it does a very good job. However, in some cases it may not auto-load the kernel modules needed by the system. If the PCI auto-detection missed some of the system's hardware, the appropriate kernel modules have to be loaded manually.
+
+In the next example the 8139too module (which supports certain kinds of network interfaces) is loaded:
+
+#+BEGIN_SRC
+root # modprobe 8139too
+#+END_SRC
+
+** Optional: User accounts
+
+If other people need access to the installation environment, or there is need to run commands as a non-root user on the installation CD (such as to chat using =irssi= without root privileges for security reasons), then an additional user account needs to be created and the root password set to a strong password.
+
+To change the root password, use the passwd utility:
+
+#+BEGIN_SRC
+root # passwd
+New password: (Enter your new password)
+Re-enter password: (Re-enter your password)
+#+END_SRC
+
+To create a user account, first enter their credentials, followed by
+the account's password. The =useradd= and =passwd= commands are used for
+these tasks.
+
+In the next example, a user called /john/ is created:
+
+#+BEGIN_SRC
+root # useradd -m -G users john
+root # passwd john
+New password: (Enter john's password)
+Re-enter password: (Re-enter john's password)
+#+END_SRC
+
+To switch from the (current) root user to the newly created user account, use the su command:
+
+#+BEGIN_SRC
+root # su - john
+#+END_SRC
+
+** Optional: Viewing documentation while installing
+
+To view the Gentoo handbook during the installation, first create a user account as described above. Then press =Alt= + =F2= to go to a new terminal.
+
+During the installation, the =links= command can be used to browse the Gentoo handbook - of course only from the moment that the Internet connection is working.
+
+#+BEGIN_SRC
+user $ links https://wiki.gentoo.org/wiki/Handbook:AMD64
+#+END_SRC
+
+To go back to the original terminal, press =Alt= + =F1=.
+
+** Optional: Starting the SSH daemon
+
+To allow other users to access the system during the installation
+(perhaps to support during an installation, or even do it remotely), a
+user account needs to be created (as was documented earlier on) and
+the SSH daemon needs to be started.
+
+To fire up the SSH daemon, execute the following command:
+
+#+BEGIN_SRC
+root # /etc/init.d/sshd start
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+If users log on to the system, they will get a message that the host key for this system needs to be confirmed (through what is called a fingerprint). This is to be expected as it is the first time people log on to the system. However, later when the system is set up and someone logs on to the newly created system, the SSH client will warn that the host key has been changed. This is because the user now log on to - for SSH - a different server (namely the freshly installed Gentoo system rather than the live environment that the installation is currently using). Follow the instructions given on the screen then to replace the host key on the client system.
+#+END_QUOTE
+
+To be able to use sshd, the network needs to function
+properly. Continue with the chapter on [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Networking][Configuring the network]].
