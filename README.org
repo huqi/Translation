@@ -1,4 +1,7 @@
-#+TITLE: Translation
-
+知识所限，翻译中有一些谬误，仅供参考。
 * Gentoo
- - [[https://github.com/huqi/Translation/blob/master/Gentoo/Handbook.org][Gentoo安装手册]]
+** 安装手册
+  URL:https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation
+
+  - [[Https://github.com/huqi/Translation/blob/master/Gentoo/Gentoo_AMD64_Handbook_Installing_en_US.org][Gentoo Linux amd64 Handbook: Installing Gentoo（英文）]]
+  - [[https://github.com/huqi/Translation/blob/master/Gentoo/Gentoo_AMD64_Handbook_Installing_zh_CN.org][Gentoo Linux amd64 Handbook: Installing Gentoo（中文）]]
