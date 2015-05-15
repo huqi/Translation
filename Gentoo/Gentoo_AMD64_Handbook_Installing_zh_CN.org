@@ -448,3 +448,61 @@ root # ping -c 3 www.gentoo.org
 #+END_SRC
 
 如果一切顺利，可以跳过本章节的余下部分，直到下一步安装指令（准备磁盘）。
+
+* 自动设置网络
+
+如果网络不能立即工作，一些安装介质允许用户使用 =net-setup= （普通和无线网络）、 =pppoe-setup= （ADSL用户）或者 =pptp= （PPTP用户）。
+
+如果安装介质不包括这些工具，请参看[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Manual_network_configuration][手动网络设置]]。
+
+  - 普通的以太网用户需要用[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Default:_Using_net-setup][默认：使用net-setup]]
+  - ADSL用户需要用[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_PPP][可选：使用PPP]]
+  - PPTP用户需要用[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_PPTP][可选：使用PPTP]]
+
+** 默认：使用net-setup
+
+如果网络没有自动配置，那么用如下的 =net-setup= 脚本是配置网络最简单的方法：
+
+#+BEGIN_SRC
+root # net-setup eth0
+#+END_SRC
+
+=net-setup= 会问题一些网络环境的问题。当设置完成后网络应该可以正常工作了。用上面提到的方法测试网络。如果测试成功，那么恭喜你！跳过下面的一段直接阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘]]。
+
+如果网络依然不能工作，继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Manual_network_configuration][手动设置网络]]。
+
+** 可选：使用PPP
+
+如果连接网络需要PPPoE，安装CD（所有版本）简化PPP的设置。使用 =pppoe-setup= 脚本设置连接。在设置以太网设备连接到ADSL网络适配器时，需要填写用户名、密码、DNS服务的IP和基本的防火墙设置。
+
+#+BEGIN_SRC
+root # pppoe-setup
+root # pppoe-start
+#+END_SRC
+
+如果出现了错误，请仔细检查etc/ppp/pap-secrets或者/etc/ppp/chap-secrets文件中的用户名和密码，并确保使用正确的以太网设备。如果没有以太网设备，需要加载合适的网络模块。这种情况下请阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Manual_network_configuration][手动设置网络]]，那里会详细解释怎么加载合适的网络模块。
+
+如果一切正常，继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘]]。
+
+** 可选：使用PPTP
+
+如果需要PPTP支持，使用安装CD中的 =pptpclient= 。但是首先确认网络配置正确。编辑/etc/ppp/pap-secrets或者/etc/ppp/chap-secrets，这里包含了正确的用户名和密码。
+
+#+BEGIN_SRC
+root # nano -w /etc/ppp/chap-secrets
+#+END_SRC
+
+如果需要的话调整一下/etc/ppp/options.pptp：
+
+#+BEGIN_SRC
+root # nano -w /etc/ppp/options.pptp
+#+END_SRC
+
+当一切都完成，运行 =pptp= （后面的选项不能在options.pptp里设置） 连接服务器：
+
+#+BEGIN_SRC
+root # pptp <server ip>
+#+END_SRC
+
+现在继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘]]。
+
