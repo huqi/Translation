@@ -506,3 +506,237 @@ root # pptp <server ip>
 
 现在继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘]]。
 
+* 手动设置网络
+
+** 加载合适的网络模块
+
+当安装CD启动时，会尝试检测所有的硬件并加载相应的模块（驱动）。大多数情况下可以正常工作。然而，有时候也不能自动加载一些模块。
+
+如果 =net-setup= 或者 =pppoe-setup= 设置失败，很可能没有检测到网卡。这意味着用户可能需要手动加载合适的内核模块。
+
+用 =ls= 查看为网络提供的内核模块：
+
+#+BEGIN_SRC
+root # ls /lib/modules/`uname -r`/kernel/drivers/net
+#+END_SRC
+
+如果找到了适合网络设备的驱动程序，用 =modprobe= 去加载这个模块。例如，加载 =pcnet32= 模块：
+
+#+BEGIN_SRC
+root # modprobe pcnet32
+#+END_SRC
+
+查看是否检测到网卡，使用 =ifconfig= 。检测到的网卡的结果大概是下面这个样子（再说一次，eth0只是一个例子）：
+
+#+BEGIN_SRC
+root # ifconfig eth0
+
+eth0      Link encap:Ethernet  HWaddr FE:FD:00:00:00:00
+          BROADCAST NOARP MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+#+END_SRC
+
+如果显示下这个错误，说明还是没有检测到网卡：
+
+#+BEGIN_SRC
+root # ifconfig eth0
+eth0: error fetching interface information: Device not found
+#+END_SRC
+
+可以通过/sys文件查看有效的网络接口名：
+
+#+BEGIN_SRC
+root #ls /sys/class/net
+dummy0  eth0  lo  sit0  tap0  wlan0
+#+END_SRC
+
+在上面这个例子，找到了6个接口。eth0比较像（有线）以太网适配器，wlan0是无线网络适配器。
+
+假设已经检测到了网卡，再试一次 =net-setup= 或者 =pppoe-setup= （现在可以工作了），对于顶级用户我们解释怎么更好的手动配置网络。
+
+根据你的网络选择一个章节：
+
+  - [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Using_DHCP][使用DHCP]] 获取IP地址
+  - [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Preparing_for_wireless_access][准备无线设置]] 如果用无线网络
+  - [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Understanding_network_terminology][了解网络术语]] 讲解基本的网络知识
+  - [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Using_ifconfig_and_route][使用ifconfig和route]] 说明怎么手动设置网络
+
+** 使用DHCP
+
+DHCP（动态主机设置协议）会自动获取网络信息（IP地址、子网掩码、广播地址、网关和域名服务器等）。只有当网络中有DHCP服务器（或者ISP提供DHCP服务）时才可以正确工作。用 =dhcpcd= 命令自动获取这些信息：
+
+#+BEGIN_SRC
+root # dhcpcd eth0
+#+END_SRC
+
+一些网络管理员需要知道DHCP服务的主机名和域名。这种情况可以使用：
+
+#+BEGIN_SRC
+root # dhcpcd -HD eth0
+#+END_SRC
+
+** 准备无线网络
+
+#+BEGIN_QUOTE
+*备注*
+
+=iwconfig= 命令可能和体系结构有关。如果找不到这个命令，请参考[[ftp://ftp.linux-wlan.org/pub/linux-wlan-ng/README][linux-wlan-ng]]项目。
+
+当使用无线网卡（802.11），在进一步设置之前要配置无线设置。可以使用 =iwconfig= 想查看当前的无线链接设置。执行 =iwconfig= 可能会显示如下信息：
+
+#+BEGIN_SRC
+root # iwconfig eth0
+eth0      IEEE 802.11-DS  ESSID:"GentooNode"
+          Mode:Managed  Frequency:2.442GHz  Access Point: 00:09:5B:11:CC:F2
+          Bit Rate:11Mb/s   Tx-Power=20 dBm   Sensitivity=0/65535
+          Retry limit:16   RTS thr:off   Fragment thr:off
+          Power Management:off
+          Link Quality:25/10  Signal level:-51 dBm  Noise level:-102 dBm
+          Rx invalid nwid:5901 Rx invalid crypt:0 Rx invalid frag:0 Tx
+          excessive retries:237 Invalid misc:350282 Missed beacon:84
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+一些无线网卡可能不是eth0而是wlan0或者ra0。不带任何参数执行 =iwconfig= 可以找到正确的设备名称。
+#+END_QUOTE
+
+对于大多数用户，有两个重要的地址需要修改，ESSID（即无线网络名称）或者WEP密钥。如果已经列出的的ESSID和接入点不需要使用WEP，那么无线设置已经可以正常工作。
+
+修改ESSID或者增加WEP密钥，发出如下命令。
+
+  - 设置网络名称为GentooNode：
+
+#+BEGIN_SRC
+root # iwconfig eth0 essid GentooNode
+#+END_SRC
+
+  - 设置16进制WEP密钥：
+
+#+BEGIN_SRC
+root # iwconfig eth0 key 1234123412341234abcd
+#+END_SRC
+
+设置ASCII格式的WEP密钥，在密钥前加 =s:= ：
+
+#+BEGIN_SRC
+root # iwconfig eth0 key s:some-password
+#+END_SRC
+
+如果无线网络设置为WPA或者WPA2，那么可能需要使用 =wpa_supplicant= 。请查看[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Networking/Wireless][Gentoo手册中无线网络章节]]获取更多无线网络设置的帮助信息。
+
+用 =iwconfig= 再次确认无线网络设置。如果无线网线已经工作，继续按照下一节的说明（[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Understanding_network_terminology][了解网络术语]]）或者使用前面所描述的 =net-setup= 配置IP级别的网络选项。
+
+* 了解网络术语
+
+#+BEGIN_QUOTE
+*备注*
+
+如果知道IP地址、广播地址、子网掩码和域名服务器，那个跳过这个小节继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Using_ifconfig_and_route][使用ipconfig和route]]。
+#+END_QUOTE
+
+如果上面所说的都无效，那么需要手动配置网络。这一步不是很难。但是，需要知道一些网络术语和基础知识。读完这节后，用户用户将会了解网关是什么，子网掩码是干什么的，广播地址是怎么形成的和为什么系统需要一个域名服务器。
+
+在一个网络里，用IP（互联网协议地址）标识一个主机。这样的地址可以看做是由4个0到255的数字组成。到少在IPv4（IP第4个版本）是这样。在现实中，这样的IPv4地址由32个比特位（0或者1）组成。我们看一个例子：
+
+#+BEGIN_SRC
+*代码* IPv4地址示例
+
+IP Address (numbers):   192.168.0.2
+IP Address (bits):      11000000 10101000 00000000 00000010
+                        -------- -------- -------- --------
+                           192      168       0        2
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+IPv4的继任者IPv6，使用128个比特位（0或者1）。在这一节当中，我个只讨论IPv4地址。
+#+END_QUOTE
+
+对所访问的网络而言，每台主机的IP地址都是独一无二的（即每个主机都有自已的IP地址）。为了区分主机内部网络还是外部网络，IP地址分成两个部分：网络部分和主机部分。
+
+分离方法用子网掩码记录，子网掩码包含着1的集合后接着0的集合。网络部分可以用1集合映射得出，另一个部分就是主机部分。一般子网掩码写成IP的格式。
+
+#+BEGIN_SRC
+*代码* 网络和主机区分示例
+
+IP address:    192      168      0         2
+            11000000 10101000 00000000 00000010
+Netmask:    11111111 11111111 11111111 00000000
+               255      255     255        0
+           +--------------------------+--------+
+                    Network              Host
+#+END_SRC
+
+也就是说，192.168.0.14在这个示例网络的一部分，但是192.168.1.2不是。
+
+广播地址是一个拥有同样网络部分的的IP，只是拥有唯一的一个IP。第个主机都会监听这个IP。他真正的用途是广播数据包。
+
+#+BEGIN_SRC
+*代码* 广播地址
+
+IP address:    192      168      0         2
+            11000000 10101000 00000000 00000010
+Broadcast:  11000000 10101000 00000000 11111111
+               192      168      0        255
+           +--------------------------+--------+
+                     Network             Host
+#+END_SRC
+
+想要上网，在网络中的每个计算都要知道哪个主机共享了网络连接。这个主机叫做网关。由于它是一个普通主机，它也有一个常规的IP（例如192.168.0.1）。
+
+前面说每台主机都要有一个自已的IP。要想用一个名字连接这个主机，我们需要一个可以把名字（例如dev.gentoo.org）翻译成IP（64.5.62.82）的服务。我们需要在/etc/resolv.conf定义这个服务。
+
+有些情况下，网关也提供域名解析服务。否则ISP提供的域名需要写在这个文件中。
+
+总结，在继续前下面的信息是必要的：
+
+| Network Item          |                        Example |
+|-----------------------+--------------------------------|
+| The system IP address |                    192.168.0.2 |
+| Netmask               |                  255.255.255.0 |
+| Broadcast             |                  192.168.0.255 |
+| Gateway               |                    192.168.0.1 |
+| Nameserver(s)         | 195.130.130.5, 195.130.130.133 |
+
+** 使用ifconfig和route
+
+设置网络有以下三步：
+
+  1. 用 =ifconfig= 填写IP地址
+  2. 用 =route= 设置网关路由
+  3. 在/etc/resolv.conf填写域名解析
+
+填写IP时，需要同时填写IP地址、广播地址、子网掩码。用有效的IP替换 =${IP_ADDR}= 、广播地址替换 =${BROADCAST}= 、 网关替换 =${NETMASK}= 执行下面的命令：
+
+#+BEGIN_SRC
+root # ifconfig eth0 ${IP_ADDR} broadcast ${BROADCAST} netmask ${NETMASK} up
+#+END_SRC
+
+用 =route= 设置路由。用有效的网关替换 =${GATEWAY}= ：
+
+#+BEGIN_SRC
+root # route add default gw ${GATEWAY}
+#+END_SRC
+
+现在打开/etc/resolv.conf文件：
+
+#+BEGIN_SRC
+root # nano -w /etc/resolv.conf
+#+END_SRC
+
+模仿下面的模板填写域名解析。确定使用有有效的域名解析地址替换 =${NAMESERVER1}= 和 =${NAMESERVER2}= ：
+
+#+BEGIN_QUOTE
+*代码* /etc/resolv.conf文件默认的模板
+
+nameserver ${NAMESERVER1}
+nameserver ${NAMESERVER2}
+#+END_QUOTE
+
+现然测试并侦测一些互联网服务（例如Google）。如果可以正常工作，那么设置完成。继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘。]]
