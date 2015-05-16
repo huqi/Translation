@@ -892,3 +892,140 @@ A BIOS boot partition is a very small (1 to 2 MB) partition in which boot loader
 Such partitions are not always necessary, but considering the low space consumption and the difficulties we have with documenting the plethora of partitioning differences otherwise, it is recommended to create it in either case.
 
 For completeness, the BIOS boot partition is needed when GPT partition layout is used with GRUB2, or when the MBR partition layout is used with GRUB2 when the first partition starts earlier than the 1 MB location on the disk.
+
+* Default: Using parted to partition the disk
+
+In this chapter, the example partition layout mentioned earlier in the
+instructions will be used:
+
+| Partition | Description         |
+|-----------+---------------------|
+| /dev/sda1 | BIOS boot partition |
+| /dev/sda2 | Boot partition      |
+| /dev/sda3 | Swap partition      |
+| /dev/sda4 | Root partition      |
+
+Change the partition layout according to personal preference.
+
+** Viewing the current partition layout with parted
+
+The =parted= application offers a simple interface for partitioning
+the disks and supports very large partitions (more than 2 TB). Fire up
+=parted= against the disk (in our example, we use /dev/sda). It is
+recommended to ask =parted= to use optimal partition alignment:
+
+#+BEGIN_SRC
+root # parted -a optimal /dev/sda
+GNU Parted 2.3
+Using /dev/sda
+Welcome to GNU Parted! Type 'help' to view a list of commands.
+#+END_SRC
+
+Alignment means that partitions are started on well-known boundaries within the disk, ensuring that operations on the disk from the operating system level (retrieve pages from the disk) use the least amount of internal disk operations. Misaligned partitions might require the disk to fetch two pages instead of one even if the operating system asked for a single page.
+
+To find out about all options supported by parted, type =help= and press return.
+
+** Setting the GPT label
+
+Most disks on x86/amd64 are prepared using an msdos label. Using =parted=, the command to put a GPT label on the disk is =mklabel gpt=:
+
+#+BEGIN_QUOTE
+*Warning*
+
+Changing the partition type will remove all partitions from the disk. All data on the disk will be lost.
+#+END_QUOTE
+
+#+BEGIN_SRC
+(parted) mklabel gpt
+#+END_SRC
+
+To have the disk with MBR layout, use =mklabel msdos=.
+
+** Removing all partitions with parted
+
+If this isn't done yet (for instance through the mklabel operation earlier, or because the disk is a freshly formatted one), first remove all existing partitions from the disk. Type =print= to view the current partitions, and =rm NUMBER= where NUMBER is the partition to remove.
+
+#+BEGIN_SRC
+(parted) rm 2
+#+END_SRC
+
+Do the same for all other partitions that aren't needed. However, make sure to not make any mistakes here - parted executes the changes immediately (unlike =fdisk= which stages them, allowing a user to "undo" his changes before saving or exiting fdisk).
+
+** Creating the partitions
+
+Now create the partitions. Creating partitions with =parted= isn't
+very difficult - all we need to do is inform =parted= about the
+following settings:
+
+    - The partition type to use. This usually is primary. If the msdos partition label is used, keep in mind that there can be no more than 4 primary partitions. If more than 4 partitions are needed, make one of the first four partitions extended and create logical partitions inside it.
+    - The start location of a partition (which can be expressed in MB, GB, ...)
+    - The end location of the partition (which can be expressed in MB, GB, ...)
+
+First, tell parted that the size unit we work with is megabytes (actually mebibytes, abbreviated as MiB which is the "standard" notation, but we will use MB in the text throughout as it is much more common):
+
+#+BEGIN_SRC
+(parted) unit mib
+#+END_SRC
+
+Now create a 2 MB partition that will be used by the GRUB2 boot loader later. Use the =mkpart= command for this, and inform =parted= to start from 1 MB and end at 3 MB (creating a partition of 2 MB in size).
+
+#+BEGIN_SRC
+(parted) mkpart primary 1 3
+(parted) name 1 grub
+(parted) set 1 bios_grub on
+(parted) print
+
+Model: Virtio Block Device (virtblk)
+Disk /dev/sda: 20480MiB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+
+Number   Start      End      Size     File system  Name   Flags
+ 1       1.00MiB    3.00MiB  2.00MiB               grub   bios_grub
+#+END_SRC
+
+Do the same for the boot partition (128 MB), swap partition (in the
+example, 512 MB) and the root partition that spans the remaining disk
+(for which the end location is marked as -1, meaning the end of the
+disk minus one MB, which is the farthest a partition can go).
+
+#+BEGIN_SRC
+(parted) mkpart primary 3 131
+(parted) name 2 boot
+(parted) mkpart primary 131 643
+(parted) name 3 swap
+(parted) mkpart primary 643 -1
+(parted) name 4 rootfs
+#+END_SRC
+
+When using the UEFI interface to boot the system (instead of BIOS),
+mark the boot partition as the EFI System Partition. Parted does this
+automatically when the boot option is set on the partition:
+
+#+BEGIN_SRC
+(parted) set 2 boot on
+#+END_SRC
+
+The end result looks like so:
+
+#+BEGIN_SRC
+(parted) print
+Model: Virtio Block Device (virtblk)
+Disk /dev/sda: 20480MiB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+
+Number   Start      End      Size     File system  Name   Flags
+ 1       1.00MiB    3.00MiB  2.00MiB               grub   bios_grub
+ 2       3.00MiB    131MiB   128MiB                boot
+ 3       131MiB     643MiB   512MiB                swap
+ 4       643MiB     20479MiB 19836MiB              rootfs
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+On an UEFI installation, the boot flag will show up on the boot partition.
+#+END_QUOTE
+
+Use the =quit= command to exit parted.

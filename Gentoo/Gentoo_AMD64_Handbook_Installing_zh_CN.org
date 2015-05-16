@@ -857,3 +857,127 @@ BIOS启动分区是一个很小的分区（1MB到2MB），它保存GRUB2的一�
 
 为了完整起见，当我们使用GPT标签和GRUB2时，需要创建BIOS分区，或者在使用MBR标签和GRUB2，第一个分区开始的位置在磁盘开始处1MB时，我们也需要BIOS分区。
 
+* 默认：使用parted进行磁盘分区
+
+在这一章，我们会使用前面提到的分区布局：
+
+| Partition | Description         |
+|-----------+---------------------|
+| /dev/sda1 | BIOS boot partition |
+| /dev/sda2 | Boot partition      |
+| /dev/sda3 | Swap partition      |
+| /dev/sda4 | Root partition      |
+
+用户可以根据偏好修改自己的分区布局。
+
+** 用parted查看当前的分区布局
+
+=parted= 程序为分区提供了一个简单的接口，并且支持大分区（大于2TB）。在磁盘上启动 =parted= （在我们的例子中，使用 /dev/sda）。建议使用 =parted= 进行最优的磁盘分区对齐：
+
+#+BEGIN_SRC
+root # parted -a optimal /dev/sda
+GNU Parted 2.3
+Using /dev/sda
+Welcome to GNU Parted! Type 'help' to view a list of commands.
+#+END_SRC
+
+对齐就是说磁盘上的分区开始于一个知名的位置，以确保磁盘操作，使用系统级操作（获取磁盘页面），这会尽量的少的使用内置磁盘操作。当系统要求获取一个页面时，没对齐的分区可能会要求磁盘获取两个页面，即使系统只要求一个。
+
+输入 =help= 并按回车，查看parted的所有选项。
+
+** 设置GPT标签
+
+许多x86/amd64上的磁盘默认的是msdos标签。使用 =parted= ，设置GPT标签的命令是 =mklabel gpt= 。
+
+#+BEGIN_QUOTE
+*警告*
+
+修改分区类型会删除磁盘上的所有分区。磁盘里的所有数据将会丢失。
+
+#+BEGIN_SRC
+(parted) mklabel gpt
+#+END_SRC
+
+使用 =mklabel msdos= 设置MBR标签。
+
+** 用parted删除所有分区
+
+如果还没有完事儿（例如刚刚 =mklabel= 操作，或者因为磁盘是刚格式化过的），首先从磁盘删除所有分区。输入 =print= 查看当前分区，再输入 =rm NUMBER= 删除分区。
+
+#+BEGIN_SRC
+(parted) rm 2
+#+END_SRC
+
+不需要所有的分区都这么操作，不管怎么样，一定要确认不要犯任何错误——parted会立即执行修改（不像 =fdisk= 那样，在保存之前允许用户撤销修改或者退出）。
+
+** 创建分区
+
+现在创建分区。用 =parted= 创建分区很简单——我们需要做的就是通知 =parted= 如下设置：
+
+  - 使用的分区类型。这个通常很重要。如果使用msdos分区标签，请记住最多只能有4个主分区。如果需要超过4个分区，把4个分区中的第一个分区改为扩展分区，并在扩展分区中建立逻辑分区
+  - 分区开始位置（可以用MB，GB，等表示）
+  - 分区结束位置（可以用MB，GB，等表示）
+
+首先，告诉parted我们使用Megabytes单位（实际上是mebibytes，标准上缩写为MiB符号，但是在文本中我们使用更通用的MB）：
+
+#+BEGIN_SRC
+(parted) unit mib
+#+END_SRC
+
+现在创建一个2MB的分区一会儿用于GRUB2启动器。用 =mkpart= 命令通知 =mkpart= 开始于1MB并结束于3 MB（创建一个2 MB的分区）。
+
+#+BEGIN_SRC
+(parted) mkpart primary 1 3
+(parted) name 1 grub
+(parted) set 1 bios_grub on
+(parted) print
+
+Model: Virtio Block Device (virtblk)
+Disk /dev/sda: 20480MiB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+
+Number   Start      End      Size     File system  Name   Flags
+ 1       1.00MiB    3.00MiB  2.00MiB               grub   bios_grub
+#+END_SRC
+
+用同样的方法创建boot分区（128 MB），交换分区（在例子中，512 MB），和用剩下的空间建立root分区（结束位置用-1标记，意思是磁盘末尾减1MB，这是最大分区的建立方法）。
+
+#+BEGIN_SRC
+(parted) mkpart primary 3 131
+(parted) name 2 boot
+(parted) mkpart primary 131 643
+(parted) name 3 swap
+(parted) mkpart primary 643 -1
+(parted) name 4 rootfs
+#+END_SRC
+
+当使用UEFI接口来启动系统（替代BIOS），标记boot分区为EFI系统分区。当启动选项设置在分区上parted会自动这样设置。
+
+#+BEGIN_SRC
+(parted) set 2 boot on
+#+END_SRC
+
+最后的结果像下面这样：
+
+#+BEGIN_SRC
+(parted) print
+Model: Virtio Block Device (virtblk)
+Disk /dev/sda: 20480MiB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+
+Number   Start      End      Size     File system  Name   Flags
+ 1       1.00MiB    3.00MiB  2.00MiB               grub   bios_grub
+ 2       3.00MiB    131MiB   128MiB                boot
+ 3       131MiB     643MiB   512MiB                swap
+ 4       643MiB     20479MiB 19836MiB              rootfs
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+在UEFI接口下安装，启动标识会在boot分区上显示。
+#+END_QUOTE
+
+使用 =quit= 退出parted。
