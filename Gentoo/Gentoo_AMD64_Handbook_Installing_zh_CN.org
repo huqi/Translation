@@ -1,4 +1,5 @@
 #+TITLE: Gentoo Linux amd64 手册: 安装Gentoo
+#+SETUPFILE:readtheorg.setup
 * 序言
 
 ** 欢迎
@@ -433,11 +434,11 @@ root #export RSYNC_PROXY="proxy.gentoo.org:8080"
 
 如果代理需要用户名和密码，用下面的语法设置这个变量：
 
-#+BEGIN_QUOTE
+#+BEGIN_SRC
 *代码* 在代理变量中加入用户名和密码
 
 http://username:password@proxy.gentoo.org:8080
-#+END_QUOTE
+#+END_SRC
 
 ** 测试网络
 
@@ -631,7 +632,7 @@ root # iwconfig eth0 key s:some-password
 
 用 =iwconfig= 再次确认无线网络设置。如果无线网线已经工作，继续按照下一节的说明（[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Understanding_network_terminology][了解网络术语]]）或者使用前面所描述的 =net-setup= 配置IP级别的网络选项。
 
-* 了解网络术语
+** 了解网络术语
 
 #+BEGIN_QUOTE
 *备注*
@@ -732,12 +733,12 @@ root # nano -w /etc/resolv.conf
 
 模仿下面的模板填写域名解析。确定使用有有效的域名解析地址替换 =${NAMESERVER1}= 和 =${NAMESERVER2}= ：
 
-#+BEGIN_QUOTE
+#+BEGIN_SRC
 *代码* /etc/resolv.conf文件默认的模板
 
 nameserver ${NAMESERVER1}
 nameserver ${NAMESERVER2}
-#+END_QUOTE
+#+END_SRC
 
 现然测试并侦测一些互联网服务（例如Google）。如果可以正常工作，那么设置完成。继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][磁盘准备。]]
 
@@ -837,7 +838,7 @@ AMD64安装CD支持LVM2。LVM2增加了系统分区的灵活性。在安装的�
   - 每个分区或卷选择性能最好的文件系统
   - 如果一个废弃的工具连续向分区或者卷写入数据，系统不会耗尽其它分区的剩余空间
   - 如果需要，可以减少文件系统检查，多个文件检查可以并行（虽然这个功能在多磁盘比多分区效果更好）
-  - 挂在只读分区或者卷可以提升安全性， =nosuid= （忽略setuid特性）， =noexec= （忽略执行特性）等。
+  - 挂在只读分区或者卷可以提升安全性， =nosuid= （忽略setuid特性）， =noexec= （忽略执行特性）等
 
 虽然，多分区也有缺点。如果配置不当，系统可能在某个分区空间耗尽时，另一个分区却有很多剩余空间，另一个问题是——特别是比较重要的挂在点 ~/usr/~ 或者 ~/var/~ ——管理员经常需要在其它启动脚本开始前，先用已经初始化的文件系统挂在分区。虽然不总是这样，但是结果可能有所不同。
 

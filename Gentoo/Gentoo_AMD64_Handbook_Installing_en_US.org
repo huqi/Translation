@@ -213,7 +213,7 @@ On Microsoft Windows, a number of tools exist that support burning ISOs on CDs.
     - With EasyCD Creator, select File, Record CD from CD image. Then change the Files of type to ISO image file. Then locate the ISO file and click Open. After clicking on Start recording the ISO image will be burned correctly onto the CD-R.
     - With Nero Burning ROM, cancel the wizard which automatically pops up and select Burn Image from the File menu. Select the image to burn and click Open. Now hit the Burn button and watch the brand new CD being burnt.
 
-Burning with Linux
+*** Burning with Linux
 
 On Linux, the ISO file can be burned on a CD using the =cdrecord= command, part of the [[http://packages.gentoo.org/package/app-cdr/cdrtools][app-cdr/cdrtools]] package.
 
@@ -656,7 +656,7 @@ If the wireless network is set up with WPA or WPA2, then =wpa_supplicant= needs 
 
 Confirm the wireless settings again by using =iwconfig=. Once wireless is working,continue configuring the IP level networking options as described in the next section ([[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Understanding_network_terminology][Understanding network terminology]]) or use the =net-setup= tool as described previously.
 
-* Understanding network terminology
+** Understanding network terminology
 
 #+BEGIN_QUOTE
 *Note*
