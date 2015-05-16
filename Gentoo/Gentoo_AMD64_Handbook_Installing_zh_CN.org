@@ -400,7 +400,7 @@ eth0      Link encap:Ethernet  HWaddr 00:50:BA:8F:61:7A
           TX packets:1284980 errors:0 dropped:0 overruns:0 carrier:0
           collisions:1984 txqueuelen:100
           RX bytes:485691215 (463.1 Mb)  TX bytes:123951388 (118.2 Mb)
-          Interrupt:11 Base address:0xe800 
+          Interrupt:11 Base address:0xe800
 #+END_SRC
 
 在系统上显示的接口名可能不同于 =eth0= 。最近安装的介质可能显示正正式的网络接口名称，像 =eno0= 、 =ens1= 或者 =enp5s0= 。你可以找到和本地网络IP地址相关的网络接口名。
@@ -447,7 +447,7 @@ http://username:password@proxy.gentoo.org:8080
 root # ping -c 3 www.gentoo.org
 #+END_SRC
 
-如果一切顺利，可以跳过本章节的余下部分，直到下一步安装指令（准备磁盘）。
+如果一切顺利，可以跳过本章节的余下部分，直到下一步安装指令（磁盘准备）。
 
 * 自动设置网络
 
@@ -467,7 +467,7 @@ root # ping -c 3 www.gentoo.org
 root # net-setup eth0
 #+END_SRC
 
-=net-setup= 会问题一些网络环境的问题。当设置完成后网络应该可以正常工作了。用上面提到的方法测试网络。如果测试成功，那么恭喜你！跳过下面的一段直接阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘]]。
+=net-setup= 会问题一些网络环境的问题。当设置完成后网络应该可以正常工作了。用上面提到的方法测试网络。如果测试成功，那么恭喜你！跳过下面的一段直接阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][磁盘准备]]。
 
 如果网络依然不能工作，继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Manual_network_configuration][手动设置网络]]。
 
@@ -482,7 +482,7 @@ root # pppoe-start
 
 如果出现了错误，请仔细检查etc/ppp/pap-secrets或者/etc/ppp/chap-secrets文件中的用户名和密码，并确保使用正确的以太网设备。如果没有以太网设备，需要加载合适的网络模块。这种情况下请阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Manual_network_configuration][手动设置网络]]，那里会详细解释怎么加载合适的网络模块。
 
-如果一切正常，继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘]]。
+如果一切正常，继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][磁盘准备]]。
 
 ** 可选：使用PPTP
 
@@ -504,7 +504,7 @@ root # nano -w /etc/ppp/options.pptp
 root # pptp <server ip>
 #+END_SRC
 
-现在继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘]]。
+现在继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][磁盘准备]]。
 
 * 手动设置网络
 
@@ -739,4 +739,90 @@ nameserver ${NAMESERVER1}
 nameserver ${NAMESERVER2}
 #+END_QUOTE
 
-现然测试并侦测一些互联网服务（例如Google）。如果可以正常工作，那么设置完成。继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][准备磁盘。]]
+现然测试并侦测一些互联网服务（例如Google）。如果可以正常工作，那么设置完成。继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][磁盘准备。]]
+
+* 块设备简介
+
+** 块设备
+
+让我们看一看Gentoo Linux磁盘方面的问题，包括文件系统、分区和块设备。一旦理解了文件系统的来龙去脉，我们就会为Gentoo Linux设置分区和文件系统。
+
+开始，我们先看看块设备。最知名的块设备可能是Linux系统的第一个驱动器/dev/sda。SCSI和串口ATA都标记为/dev/sd*；在新的内核的libata架构下IDE设备也被标记为/dev/sd*。如果用老的硬件架构，第一个IDE设备是/dev/hda。
+
+上面介绍的块设备代表磁盘的抽象接口。用户可以使用块设备编写读写磁盘的程序，不需要关注是使用的IDE、SCSI或者其它的什么设备。程序可以简单的以连续的数据或者随机的512字节来定位存储数据。
+
+** 分区
+
+尽管理论上可以使用整个磁盘来存储Linux系统，但在实际上几乎从不这样做。我们经常把磁盘分成较小的可以更方便管理的块设备。在AMD64系统上，这个操作叫做分区。有两个标准的分区技术可以使用：MBR和GPT。
+
+*** MBR
+
+MBR（主引导记录）用32位标识符表示起始扇区和分区长度，支持3种分区类型：主分区，扩展分区和逻辑分区。主分区把信息存储在自已的MBR中——在磁盘开始位置的一个很小的区域（通常是512字节）。因为这个空间很小，所以只支持4个主分区（例如/dev/sda1到/dev/sda4）。
+
+要想支持更多分区，其中一个主分区可以标记为扩展分区。这个分区可以包含一些逻辑分区（分区中的分区）。
+
+第个分区被限制为2TB之内（因为32位标识符）。MBR不提供备份机制，所以如果有应用破坏了MBR，所有的分区信息都会丢失。
+
+*** GPT
+
+GPT（全局唯一标识分区表）使用64位标识符标识分区，其中存储分区信息的位置也要比512字节的MBR大的多，也没有限制分区的数量。同时，分区也可以更大（大概8ZB）。
+
+当使用UEFI（替换BIOS）和操作系统进行交互时，几乎必须使用GPT，因为MBR有一些兼容性问题。
+
+GPT有更先进的功能，它可以在磁盘末尾备份分区表，它可以覆盖磁盘开头已损坏的GPT信息。GPT使用CRC32校验来检测分区表错误。
+
+** GPT还是MBR
+
+在上面的说明中，有人可能会想更建议使用GPT。但是还有一警告。
+
+在运行BIOS系统的计算机上使用GPT，不能实现Windows双系统启动。因为检测到GPT分区表后Windows会以EFI模式启动。
+
+当一些有缺陷的BIOS或者EFI，配置以BIOS/CSM/传统模式启动时，可能会在GPT分区磁盘上产生问题。如果这样的话，可以通过 =fdisk= 和 =-t dos= 强制用MBR格式读这个分区表，并在这个分区表上设置boot/active标记解决这个问题。
+
+这种情况下，启动 =fdisk= 在第一个分区（ =1= ）用 =a= 切换标记。用 =w= 保存修改并退出 =fdisk= ：
+
+#+BEGIN_SRC
+user $ fdisk -t dos /dev/sda
+Welcome to fdisk (util-linux 2.24.1).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+Command (m for help): a
+Partition number (1-4): 1
+
+Command (m for help): w
+#+END_SRC
+
+** 使用UEFI
+
+当使用UEFI（替代BIOS）启动操作系统来安装Gentoo，创建一个EFI系统分区是很重要的。接下来的指令是要点。
+
+EFI系统分区需要分区为FAT32格式（或者在Linux系统上显示为vfat的格式）。这节的末尾使用ext2文件系统的例子创建boot分区。用下面的方法确定使用vfat格式：
+
+#+BEGIN_SRC
+root # mkfs.vfat /dev/sda2
+#+END_SRC
+
+#+BEGIN_QUOTE
+*警告*
+
+如果boot分区不使用FAT32（vfat）文件系统，那么UEFI固件将找不到Linux内核，造成不能启动！
+#+END_QUOTE
+
+** 高级存储
+
+AMD64安装CD支持LVM2。LVM2增加了系统分区的灵活性。在安装的过程中，我们关注“常规”分区，但是了解LVM2也是很有用的。
+
+*** 默认的分区方案
+
+我们使用下面的分区方案贯穿整个手册的剩余部分。如果这个方案足够用户使用，可以跳到[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Default:_Using_parted_to_partition_the_disk][默认：使用parted进行磁盘分区]]或者[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_fdisk_to_partition_the_disk][可选：使用fdisk进行磁盘分区。两个都是磁盘分区工具，]] =fdisk= 是知名且稳定分区工具，建议在MBR分区上使用。 =parted= 是刚出现的分区工具，建议在GPT分区使用。
+
+| Partition | Filesystem     | Size             | Description         |
+|-----------+----------------+------------------+---------------------|
+| /dev/sda1 | (bootloader)   | 2M               | BIOS boot partition |
+| /dev/sda2 | ext2 (or vfat) | 128M             | Boot partition      |
+| /dev/sda3 | (swap)         | 512M or higher   | Swap partition      |
+| /dev/sda4 | ext4           | Rest of the disk | Root partition      |
+
+在执行创建分区命令前，第一组章节会介绍更多关于分区方案和相关的问题。
+

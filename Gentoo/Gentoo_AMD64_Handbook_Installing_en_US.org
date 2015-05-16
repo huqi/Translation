@@ -775,4 +775,89 @@ nameserver ${NAMESERVER2}
 
 That's it. Now test the network by pinging some Internet server (like Google). If this works, congratulations then. Continue with [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks][Preparing the disks]].
 
+* Introduction to block devices
 
+** Block devices
+
+Let's take a good look at disk-oriented aspects of Gentoo Linux and Linux in general, including Linux filesystems, partitions and block devices. Once the ins and outs of disks and filesystems are understood, we will set up partitions and filesystems for the Gentoo Linux installation.
+
+To begin, let's look at block devices. The most famous block device is probably the one that represents the first drive in a Linux system, namely /dev/sda. SCSI and Serial ATA drives are both labeled /dev/sd*; even IDE drives are labeled /dev/sd* with the new libata framework in the kernel. When using the old device framework, then the first IDE drive is /dev/hda.
+
+The block devices above represent an abstract interface to the disk. User programs can use these block devices to interact with your disk without worrying about whether the drives are IDE, SCSI or something else. The program can simply address the storage on the disk as a bunch of contiguous, randomly-accessible 512-byte blocks.
+
+** Partitions
+
+Although it is theoretically possible to use a full disk to house a Linux system, this is almost never done in practice. Instead, full disk block devices are split up in smaller, more manageable block devices. On AMD64 systems, these are called partitions. There are currently two standard partitioning technologies in use: MBR and GPT.
+
+*** MBR
+
+The MBR (Master Boot Record) setup uses 32-bit identifiers for the start sector and length of the partitions, and supports three partition types: primary, extended and logical. Primary partitions have their information stored in the master boot record itself - a very small (usually 512 bytes) location at the very beginning of a disk. Due to this small space, only four primary partitions are supported (for instance, /dev/sda1 to /dev/sda4).
+
+To support more partitions, one of the primary partitions can be marked as an extended partition. This partition can then contain logical partitions (partitions within a partition).
+
+Each partition is limited to 2 TB in size (due to the 32-bit identifiers). Also, the MBR setup does not provide any backup-MBR, so if an application or user overwrites the MBR, all partition information is lost.
+
+*** GPT
+
+The GPT (GUID Partition table) setup uses 64-bit identifiers for the partitions. The location in which it stores the partition information is also much bigger than the 512 bytes of an MBR, and there is no limit on the amount of partitions. Also the size of a partition is bounded by a much greater limit (almost 8 ZB - yes, zettabytes).
+
+When a system's software interface between the operating system and firmware is UEFI (instead of BIOS), GPT is almost mandatory as compatibility issues will arise with MBR here.
+
+GPT also has the advantage that it has a backup GPT at the end of the disk, which can be used to recover damage of the primary GPT at the beginning. GPT also carries CRC32 checksums to detect errors in the header and partition tables. 
+
+** GPT or MBR
+
+From the description above, one might think that using GPT should always be the recommended approach. But there are a few caveats with this.
+
+Using GPT on a BIOS-based computer works, but then one cannot dual-boot with a Microsoft Windows operating system. The reason is that Microsoft Windows will boot in EFI mode if it detects a GPT partition label.
+
+Some buggy BIOSes or EFIs configured to boot in BIOS/CSM/legacy mode might also have problems with booting from GPT labeled disks. If that is the case, it might be possible to work around the problem by adding the boot/active flag on the protective MBR partition which has to be done through =fdisk= with the =-t dos= option to force it to read the partition table using the MBR format.
+
+In this case, launch =fdisk= and toggle the flag using =a= on the first
+partition (=1=). Then write the changes to the disk (=w=) and exit the
+=fdisk= application:
+
+#+BEGIN_SRC
+user $ fdisk -t dos /dev/sda
+Welcome to fdisk (util-linux 2.24.1).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+Command (m for help): a
+Partition number (1-4): 1
+
+Command (m for help): w
+#+END_SRC
+
+** Using UEFI
+
+When installing Gentoo on a system that uses UEFI to boot the operating system (instead of BIOS), then it is important that an EFI system partition is created. The instructions for =parted= below contain the necessary pointers for this.
+
+The EFI system partition also needs to be a FAT32 partition (or vfat as it is shown on Linux systems). The instructions at the end of this chapter use ext2 as the example file system for the /boot / partition. Make sure to use vfat, like so:
+
+#+BEGIN_SRC
+root # mkfs.vfat /dev/sda2
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Warning*
+
+If the boot partition is not using the FAT32 (vfat) file system, then the systems UEFI firmware will not be able to find the Linux kernel and boot the system!
+#+END_QUOTE
+
+** Advanced storage
+
+The AMD64 Installation CDs provide support for LVM2. LVM2 increases the flexibility offered by the partitioning setup. During the installation instructions, we will focus on "regular" partitions, but it is still good to know LVM2 is supported as well.
+
+*** Default partitioning scheme
+
+Throughout the remainder of the handbook, the following partitioning scheme is used. If this suffices, then the reader can immediately jump to [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Default:_Using_parted_to_partition_the_disk][Default: Using parted to partition the disk]] or [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_fdisk_to_partition_the_disk][Alternative: Using fdisk to partition the disk]]. Both are partitioning tools, =fdisk= is well known and stable and recommended for the MBR partition layout, while =parted= is more recent and recommended for GPT layouts.
+
+| Partition | Filesystem     | Size             | Description         |
+|-----------+----------------+------------------+---------------------|
+| /dev/sda1 | (bootloader)   | 2M               | BIOS boot partition |
+| /dev/sda2 | ext2 (or vfat) | 128M             | Boot partition      |
+| /dev/sda3 | (swap)         | 512M or higher   | Swap partition      |
+| /dev/sda4 | ext4           | Rest of the disk | Root partition      |
+
+Before going to the creation instructions, the first set of sections will describe in more detail how partitioning schemes can be created and what the common pitfalls are.
