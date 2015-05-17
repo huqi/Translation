@@ -1247,6 +1247,26 @@ root #swapon /dev/sda3
 
 用上面提到的命令创建并激活交换分区。
 
+* 挂载
+
+现在已经完成分区初始化，并设置了文件系统，现在可以使用 =mount= 挂载这些分区。别忘记建立需要挂载目录。例如我们挂在根分区和启动分区：
+
+#+BEGIN_SRC
+root # mount /dev/sda4 /mnt/gentoo
+root # mkdir /mnt/gentoo/boot
+root # mount /dev/sda2 /mnt/gentoo/boot
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+如果 ~/tmp/~ 单独分区，在挂载分区后需要修改权限：
+=root # chmod 1777 /mnt/gentoo/tmp=
+/var/tmp目录也一样。
+#+END_QUOTE
+
+接下来会挂载proc文件系统（内核虚拟接口）以及其它伪文件系统，但是首先我们先[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage][安装Gentoo文件]]。
+
 
 ----------------------------
 译注：

@@ -1304,3 +1304,26 @@ root #swapon /dev/sda3
 #+END_SRC
 
 Create and activate the swap with the commands mentioned above.
+
+* Mounting
+
+Now that the partitions are initialized and are housing a filesystem, it is time to =mount= those partitions. Use the mount command, but don't forget to create the necessary mount directories for every partition created. As an example we mount the root and boot partition:
+
+#+BEGIN_SRC
+root # mount /dev/sda4 /mnt/gentoo
+root # mkdir /mnt/gentoo/boot
+root # mount /dev/sda2 /mnt/gentoo/boot
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+If ~/tmp/~ needs to reside on a separate partition, be sure to change its permissions after mounting:
+=root #chmod 1777 /mnt/gentoo/tmp=
+This also holds for /var/tmp.
+#+END_QUOTE
+
+Later in the instructions the proc filesystem (a virtual interface with the kernel) as well as other kernel psuedo-filesystems will be mounted. But first we [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage][install the Gentoo installation files]].
+
+
+
