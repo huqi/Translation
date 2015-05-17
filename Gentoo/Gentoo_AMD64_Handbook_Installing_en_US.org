@@ -1029,3 +1029,182 @@ On an UEFI installation, the boot flag will show up on the boot partition.
 #+END_QUOTE
 
 Use the =quit= command to exit parted.
+
+* Alternative: Using fdisk to partition the disk
+
+#+BEGIN_QUOTE
+*Note*
+
+Although recent fdisk should support GPT, it has still shown to have some issues with it. The instructions given below assume that the partition layout being used is MBR.
+#+END_QUOTE
+
+The following parts explain how to create the example partition layout using =fdisk=. The example partition layout was mentioned earlier:
+
+| Partition | Description         |
+|-----------+---------------------|
+| /dev/sda1 | BIOS boot partition |
+| /dev/sda2 | Boot partition      |
+| /dev/sda3 | Swap partition      |
+| /dev/sda4 | Root partition      |
+
+Change the partition layout according to personal preference.
+
+** Viewing the current partition layout
+
+=fdisk= is a popular and powerful tool to split a disk into partitions. Fire up =fdisk= against the disk (in our example, we use /dev/sda):
+
+#+BEGIN_SRC
+root # fdisk /dev/sda
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+To use GPT support, add =-t gpt=. It is recommended to closely investigate the fdisk output in case more recent developments in fdisk change its default behavior of defaulting to MBR. The remainder of the instructions assume an MBR layout.
+#+END_QUOTE
+
+Type =p= to display the disk's current partition configuration:
+
+#+BEGIN_SRC
+Command (m for help): p
+Disk /dev/sda: 240 heads, 63 sectors, 2184 cylinders
+Units = cylinders of 15120 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sda1   *         1        14    105808+  83  Linux
+/dev/sda2            15        49    264600   82  Linux swap
+/dev/sda3            50        70    158760   83  Linux
+/dev/sda4            71      2184  15981840    5  Extended
+/dev/sda5            71       209   1050808+  83  Linux
+/dev/sda6           210       348   1050808+  83  Linux
+/dev/sda7           349       626   2101648+  83  Linux
+/dev/sda8           627       904   2101648+  83  Linux
+/dev/sda9           905      2184   9676768+  83  Linux
+#+END_SRC
+
+This particular disk is configured to house seven Linux filesystems (each with a corresponding partition listed as "Linux") as well as a swap partition (listed as "Linux swap").
+
+** Removing all partitions with fdisk
+
+First remove all existing partitions from the disk. Type =d= to delete a partition. For instance, to delete an existing /dev/sda1:
+
+#+BEGIN_SRC
+Command (m for help): d
+Partition number (1-4): 1
+#+END_SRC
+
+The partition has now been scheduled for deletion. It will no longer show up when printing the list of partitions (=p=), but it will not be erased until the changes have been saved. This allows users to abort the operation if a mistake was made - in that case, type =q= immediately and hit enter and the partition will not be deleted.
+
+Repeatedly type =p= to print out a partition listing and then type =d= and the number of the partition to delete it. Eventually, the partition table will be empty:
+
+#+BEGIN_SRC
+Command (m for help): p
+Disk /dev/sda: 30.0 GB, 30005821440 bytes
+240 heads, 63 sectors/track, 3876 cylinders
+Units = cylinders of 15120 * 512 = 7741440 bytes
+
+Device Boot    Start       End    Blocks   Id  System
+#+END_SRC
+
+Now that the in-memory partition table is empty, we're ready to create the partitions.
+
+** Creating the BIOS boot partition
+
+First create a very small BIOS boot partition. Type =n= to create a new partition, then =p= to select a primary partition, followed by =1= to select the first primary partition. When prompted for the first sector, make sure it starts from 2048 (which is needed for the boot loader) and hit enter. When prompted for the last sector, type +2M to create a partition 2 Mbyte in size:
+
+#+BEGIN_QUOTE
+*Note*
+
+The start from sector 2048 is a fail-safe in case the boot loader does not detect this partition as being available for its use.
+#+END_QUOTE
+
+#+BEGIN_SRC
+Command (m for help): n
+Command action
+  e   extended
+  p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First sector (64-10486533532, default 64): 2048
+Last sector, +sectors +size{M,K,G} (4096-10486533532, default 10486533532): +2M
+#+END_SRC
+
+Mark the partition for EFI purposes:
+
+#+BEGIN_SRC
+Command (m for help): t
+Selected partition 1
+Hex code (type L to list codes): ef
+Changed system type of partition 1 to ef (EFI (FAT-12/16/32))
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+Using EFI with MBR partition layout is discouraged. If an EFI capable system is used, please use GPT layout.
+#+END_QUOTE
+
+** Creating the boot partition
+
+Now create a small boot partition. Type =n= to create a new partition, then =p= to select a primary partition, followed by =2= to select the second primary partition. When prompted for the first sector, accept the default by hitting =Enter=. When prompted for the last sector, type +128M to create a partition 128 Mbyte in size:
+
+#+BEGIN_SRC
+Command (m for help): n
+Command action
+  e   extended
+  p   primary partition (1-4)
+p
+Partition number (1-4): 2
+First sector (5198-10486533532, default 5198): (Hit enter)
+Last sector, +sectors +size{M,K,G} (4096-10486533532, default 10486533532): +128M
+#+END_SRC
+
+Now, when pressing =p=, the following partition printout is displayed:
+
+#+BEGIN_SRC
+Command (m for help): p
+Disk /dev/sda: 30.0 GB, 30005821440 bytes
+240 heads, 63 sectors/track, 3876 cylinders
+Units = cylinders of 15120 * 512 = 7741440 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sda1             1         3      5198+  ef  EFI (FAT-12/16/32)
+/dev/sda2             3        14    105808+  83  Linux
+#+END_SRC
+
+Type =a= to toggle the bootable flag on a partition and select =2=. After pressing =p= again, notice that an * is placed in the "Boot" column.
+
+** Creating the swap partition
+
+To create the swap partition, type =n= to create a new partition, then =p= to tell fdisk to create a primary partition. Then type =3= to create the third primary partition, /dev/sda3. When prompted for the first sector, hit =Enter=. When prompted for the last sector, type +512M (or any other size needed for the swap space) to create a partition 512MB in size.
+
+After all this is done, type =t= to set the partition type, =3= to select the partition just created and then type in /82/ to set the partition type to "Linux Swap".
+
+** Creating the root partition
+
+Finally, to create the root partition, type =n= to create a new partition, then =p= to tell =fdisk= to create a primary partition. Then type =4= to create the fourth primary partition, /dev/sda4. When prompted for the first sector, hit =Enter=. When prompted for the last sector, hit =Enter= to create a partition that takes up the rest of the remaining space on the disk. After completing these steps, typing =p= should display a partition table that looks similar to this:
+
+#+BEGIN_SRC
+Command (m for help): p
+Disk /dev/sda: 30.0 GB, 30005821440 bytes
+240 heads, 63 sectors/track, 3876 cylinders
+Units = cylinders of 15120 * 512 = 7741440 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sda1             1         3      5198+  ef  EFI (FAT-12/16/32)
+/dev/sda2   *         3        14    105808+  83  Linux
+/dev/sda3            15        81    506520   82  Linux swap
+/dev/sda4            82      3876  28690200   83  Linux
+#+END_SRC
+
+** Saving the partition layout
+
+To save the partition layout and exit =fdisk=, type =w=.
+
+#+BEGIN_SRC
+Command (m for help): w
+#+END_SRC
+
+With the partitions created, it is now time to put filesystems on them.
+
+

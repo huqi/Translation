@@ -869,9 +869,9 @@ BIOS启动分区是一个很小的分区（1MB到2MB），它保存GRUB2的一�
 | /dev/sda3 | Swap partition      |
 | /dev/sda4 | Root partition      |
 
-用户可以根据偏好修改自己的分区布局。
+用户可以根据偏好修改自己的分区表。
 
-** 用parted查看当前的分区布局
+** 用parted查看当前的分区表
 
 =parted= 程序为分区提供了一个简单的接口，并且支持大分区（大于2TB）。在磁盘上启动 =parted= （在我们的例子中，使用 /dev/sda）。建议使用 =parted= 进行最优的磁盘分区对齐：
 
@@ -982,3 +982,174 @@ Number   Start      End      Size     File system  Name   Flags
 #+END_QUOTE
 
 使用 =quit= 退出parted。
+
+* 可选：使用fdisk进行磁盘分区
+
+#+BEGIN_QUOTE
+*备注*
+
+虽然近期的fdisk版本可以支持GPT，但是还有一些问题。下面的安装命令假设用户使用的MBR分区表。
+#+END_QUOTE
+
+下面这部分会解释怎么用 =fdisk= 进行示例分区。前面提到的样例分区表如下：
+
+| Partition | Description  |
+|-----------+--------------|
+| /dev/sda1 | BIOS启动分区 |
+| /dev/sda2 | 启动分区     |
+| /dev/sda3 | 交换分区     |
+| /dev/sda4 | 主分区       |
+
+用户可以根据偏好修改分区表。
+
+** 查看当前分区表
+
+=fdisk= 是一个很流行的磁盘分区软件。对磁盘启动 =fdisk= （在我们的示例中使用/dev/sda）：
+
+#+BEGIN_SRC
+root # fdisk /dev/sda
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+使用 =-t gpt= 来支持GPT。建议密切关注fdisk的输出，以防止fdisk近期的发展改变了默认为MBR的情况。余下的章节假设使用MBR表。
+#+END_QUOTE
+
+输入 =p= 来查看当前的分区配置：
+
+#+BEGIN_SRC
+Command (m for help): p
+Disk /dev/sda: 240 heads, 63 sectors, 2184 cylinders
+Units = cylinders of 15120 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sda1   *         1        14    105808+  83  Linux
+/dev/sda2            15        49    264600   82  Linux swap
+/dev/sda3            50        70    158760   83  Linux
+/dev/sda4            71      2184  15981840    5  Extended
+/dev/sda5            71       209   1050808+  83  Linux
+/dev/sda6           210       348   1050808+  83  Linux
+/dev/sda7           349       626   2101648+  83  Linux
+/dev/sda8           627       904   2101648+  83  Linux
+/dev/sda9           905      2184   9676768+  83  Linux
+#+END_SRC
+
+这个磁盘配置安装了7个Linux文件系统（每个分区都用“linux”标识）以及一个交换分区（用“Linux swap”标识）。
+
+** 用fdisk删除所有分区
+
+首先删除磁盘所有的分区。输入 =d= 删除分区。例如，删除/dev/sda1：
+
+#+BEGIN_SRC
+Command (m for help): d
+Partition number (1-4): 1
+#+END_SRC
+
+分区已经设置为计划删除。输出分区列表时不会显示这个分区（ =p= ）, 直到保存修改前，它的数据不会被擦除。这允许用户输入错的情况下终止操作——输入错了的话，输入 =q= 并按回车不保存修改立即退出程序。
+
+重按 =p= 输出分区列表，输入 =d= 和分区序号来删除分区。直到分区列表为空：
+
+#+BEGIN_SRC
+Command (m for help): p
+Disk /dev/sda: 30.0 GB, 30005821440 bytes
+240 heads, 63 sectors/track, 3876 cylinders
+Units = cylinders of 15120 * 512 = 7741440 bytes
+
+Device Boot    Start       End    Blocks   Id  System
+#+END_SRC
+
+现在内存中的分区列表为空，我们准备新建分区。
+
+** 新建BIOS启动分区
+
+首先新建一个小的BIOS启动分区。输入 =n= 新建分区，输入 =p= 选择主分区，输入 =1= 表示建立第一个主分区。当提示第一个扇区，确定他开始于2048（boot loader指定）按回车。当提输入最后一个扇区，输入+2M新建一个2 Mb的分区：
+
+#+BEGIN_QUOTE
+*备注*
+
+在启动引导器不能正确检查这是个分区时，从2048扇区开始是不够安全。
+#+END_QUOTE
+
+#+BEGIN_SRC
+Command (m for help): n
+Command action
+  e   extended
+  p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First sector (64-10486533532, default 64): 2048
+Last sector, +sectors +size{M,K,G} (4096-10486533532, default 10486533532): +2M
+#+END_SRC
+
+标记分区为EFI系统：
+
+#+BEGIN_SRC
+Command (m for help): t
+Selected partition 1
+Hex code (type L to list codes): ef
+Changed system type of partition 1 to ef (EFI (FAT-12/16/32))
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+不鼓励EFI系统和MBR分区一起使用。如果使用有EFI功能的系统，请使用GPT表。
+#+END_QUOTE
+
+** 创建启动分区
+
+现在创建一个小的启动分区。输入 =n= 新建分区，输入 =p= 选择主分区，输入 =2= 建立第二个主分区。当提示输入首扇区，按 =Enter= 默认。当提示输入最后一个扇区，输入+128M建立一个128MB的分区：
+
+#+BEGIN_SRC
+Command (m for help): n
+Command action
+  e   extended
+  p   primary partition (1-4)
+p
+Partition number (1-4): 2
+First sector (5198-10486533532, default 5198): (Hit enter)
+Last sector, +sectors +size{M,K,G} (4096-10486533532, default 10486533532): +128M
+#+END_SRC
+
+现在输入 =p= 输出如下：
+
+输入 =a= 选择 =2= 切换可启动标记，再次输入 =p= ，请注意“Boot”列中多了一个*号。
+
+** 创建交换分区
+
+要想创建交换分区，先输入 =n= 新建一个分区，然后输入 =p= 让fdisk知道这是个主分区。输入 =3= 建立第三个主分区/dev/sda3。当提示输入首扇区时，按 =Enter= 默认。当提示输入最后一个扇区，输入+512M（或者所需的交换分区大小）建立一个512MB的分区。
+
+完成后，输入 =t= 设置分区类型， 输入 =3= 选择刚刚建立的分区，输入 /82/ 选择“Linux Swap”类型。
+
+** 创建主分区
+
+最后创建主分区，输入 =n= 新建一个分区， 输入 =p= 选择主分区，输入 =4= 建立第四个主分区/dev/sda4。当提示输入首扇区，按回车默认。当提示入尾扇区，按回车使用磁盘剩余空间。完成后输入 =p= 可以显示分区列表：
+
+#+BEGIN_SRC
+Command (m for help): p
+Disk /dev/sda: 30.0 GB, 30005821440 bytes
+240 heads, 63 sectors/track, 3876 cylinders
+Units = cylinders of 15120 * 512 = 7741440 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sda1             1         3      5198+  ef  EFI (FAT-12/16/32)
+/dev/sda2   *         3        14    105808+  83  Linux
+/dev/sda3            15        81    506520   82  Linux swap
+/dev/sda4            82      3876  28690200   83  Linux
+#+END_SRC
+
+** 保存分区表
+
+输入 =w= 保存并退出 =fdisk= 。
+
+#+BEGIN_SRC
+Command (m for help): w
+#+END_SRC
+
+创建完分区后，该是设置文件系统的时候了。
+
+----------------------------
+译注：
+partition table : 分区列表
+partition layout : 分区表
