@@ -1207,4 +1207,100 @@ Command (m for help): w
 
 With the partitions created, it is now time to put filesystems on them.
 
+* Creating file systems
 
+** Introduction
+
+Now that the partitions are created, it is time to place a filesystem on them. In the next section the various file systems that Linux supports are described. Readers that already know which filesystem to use can continue with [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Applying_a_filesystem_to_a_partition][Applying a filesystem to a partition]]. The others should read on to learn about the available filesystems...
+
+** Filesystems
+
+Several filesystems are available. Some of them are found stable on the amd64 architecture - it is advised to read up on the filesystems and their support state before selecting a more experimental one for important partitions.
+
+*ext2*
+
+    This is the tried and true Linux filesystem but doesn't have metadata journaling, which means that routine ext2 filesystem checks at startup time can be quite time-consuming. There is now quite a selection of newer-generation journaled filesystems that can be checked for consistency very quickly and are thus generally preferred over their non-journaled counterparts. Journaled filesystems prevent long delays when the system is booted and the filesystem happens to be in an inconsistent state.
+
+*ext3*
+
+    The journaled version of the ext2 filesystem, providing metadata journaling for fast recovery in addition to other enhanced journaling modes like full data and ordered data journaling. It uses an HTree index that enables high performance in almost all situations. In short, ext3 is a very good and reliable filesystem.
+
+*ext4*
+
+    Initially created as a fork of ext3, ext4 brings new features, performance improvements and removal of size limits with moderate changes to the on-disk format. It can span volumes up to 1 EB and with maximum file size of 16 TB. Instead of the classic ext2/3 bitmap block allocation ext4 uses extents, which improve large file performance and reduce fragmentation. Ext4 also provides more sophisticated block allocation algorithms (delayed allocation and multiblock allocation) giving the filesystem driver more ways to optimize the layout of data on the disk. Ext4 is the recommended all-purpose all-platform filesystem.
+
+*JFS*
+
+    IBM's high-performance journaling filesystem. JFS is a light, fast and reliable B+tree-based filesystem with good performance in various conditions.
+
+*ReiserFS*
+
+    A B+tree-based journaled filesystem that has good overall performance, especially when dealing with many tiny files at the cost of more CPU cycles. ReiserFS appears to be less maintained than other filesystems.
+
+*XFS*
+
+    A filesystem with metadata journaling which comes with a robust feature-set and is optimized for scalability. XFS seems to be less forgiving to various hardware problems.
+
+*vfat*
+
+    Also known as FAT32, is supported by Linux but does not support any permission settings. It is mostly used for interoperability with other operating systems (mainly Microsoft Windows) but is also a necessity for some system firmware (like UEFI).
+
+When using ext2, ext3 or ext4 on a small partition (less than 8GB), then the file system must be created with the proper options to reserve enough inodes. The =mke2fs= application uses the "bytes-per-inode" setting to calculate how many inodes a file system should have. On smaller partitions, it is advised to increase the calculated number of inodes.
+
+On ext2, this can be done using the following command:
+
+#+BEGIN_SRC
+root # mke2fs -T small /dev/<device>
+#+END_SRC
+
+On ext3 and ext4, add the =-j= option to enable journaling:
+
+#+BEGIN_SRC
+root # mke2fs -j -T small /dev/<device>
+#+END_SRC
+
+This will generally quadruple the number of inodes for a given file system as its "bytes-per-inode" reduces from one every 16kB to one every 4kB. This can be tuned even further by providing the ratio:
+
+#+BEGIN_SRC
+root # mke2fs -i <ratio> /dev/<device>
+#+END_SRC
+
+** Applying a filesystem to a partition
+
+To create a filesystem on a partition or volume, there are tools
+available for each possible filesystem:
+
+| Filesystem | Creation Command |
+|------------+------------------|
+| ext2       | mkfs.ext2        |
+| ext3       | mkfs.ext3        |
+| ext4       | mkfs.ext4        |
+| reiserfs   | mkreiserfs       |
+| xfs        | mkfs.xfs         |
+| jfs        | mkfs.jfs         |
+| vfat       | mkfs.vfat        |
+
+For instance, to have the boot partition (/dev/sda2) in ext2 and the root partition (/dev/sda4) in ext4 as used in the example partition structure, the following commands would be used:
+
+#+BEGIN_SRC
+root # mkfs.ext2 /dev/sda2
+root # mkfs.ext4 /dev/sda4
+#+END_SRC
+
+Now create the filesystems on the newly created partitions (or logical volumes).
+
+** Activating the Swap Partition
+
+=mkswap= is the command that is used to initialize swap partitions:
+
+#+BEGIN_SRC
+root # mkswap /dev/sda3
+#+END_SRC
+
+To activate the swap partition, use =swapon=:
+
+#+BEGIN_SRC
+root #swapon /dev/sda3
+#+END_SRC
+
+Create and activate the swap with the commands mentioned above.

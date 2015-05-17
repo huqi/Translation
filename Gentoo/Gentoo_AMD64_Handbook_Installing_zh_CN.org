@@ -1147,9 +1147,109 @@ Units = cylinders of 15120 * 512 = 7741440 bytes
 Command (m for help): w
 #+END_SRC
 
-创建完分区后，该是设置文件系统的时候了。
+创建完分区后，该是建立文件系统的时候了。
+
+* 建立文件系统
+
+** 简介
+
+现在已经创建了分区，应该设置一个文件系统。在下面一节中介绍了多种Linux支持的文件系统。如用户已经知道要使用哪种文件系统，可以跳到[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Applying_a_filesystem_to_a_partition][分区使用文件系统继续阅读。其它用户需要先了解一些文件系统知识。]]
+
+** 文件系统
+
+有好多种文件系统可以选择。有一些文件系统在amd64架构下表现比较稳定——在重要的分区使用文件系统前，请仔细研究文件系统知识。
+
+*ext2*
+
+  这个文件系统可以成为正式的Linux文件系统，但是它没有元数据日志，这意味着ext2文件系统启动时非常耗时。现在已经有很多新一代的日志文件系统可以这种非日志的系统。这种系统可以快速检查一致性，防止在文件系统启动发现不一致时出现较长时间的延迟。
+
+*ext3*
+
+  ext2文件系统的日志功能版本，除子提供可以快速恢复的元数据日志功能外，还提升了例如完整数据和指令数据的日志模式。它使用HTree索引可以在基本所有状态表现优异。简而言之，ext3是一个可靠的文件系统。
+
+*ext4*
+
+  作为ext3的分支版本，ext4有很多新的功能，提升了性能并适当的移除了大小限制。可以让卷的大小达到1EB，文件大小达到16TB。用extents替代了ext2/ext3经典的bitmap块分配方式，这种方式可以提升大文件的读写性能并减少磁盘碎片。Ext4提供了复杂的块分配算法（延迟分配和多块分配），可以让文件系统驱动用很多法调优数据表现。推荐所有通用平台都使用Ext4文件系统。
+
+*JFS*
+
+  IBM的高性能日志文件系统。JFS是基于B+树的一个轻量级、快速并且可信赖的文件系统，它可以在很多情况下表现良好。
+
+*ReiserFS*
+
+  基于B+树的日志文件系统，总体性能不错，特别是处理消耗CPU时间的很多小文件时。ReiserFS照比其它文件系统更容易维护。
+
+*XFS*
+
+  一个有元数据日志功能的文件系统，它有更健壮的功能可以对scalability优化。XFS看上去不能很好的处理各种硬件问题。
+
+*vfat*
+
+  也被称为FAT32，Linux支持这种文件系统，但是它不支持权限设置。它经常用于其它操作系统（主要是Microsoft Windows），但也是一些固件系统（比如UEFI）所必须的文件系统。
+
+
+如果在小分区（小于8GB）上使用ext2，ext3或者ext4文件系统时，那么需要用合适的参数创建文件系统来保留足够的索引节点。 =mke2fs= 应用使用“多少字节一个索引节点”来计算文件系统需要多少索引节点。在较小的分区上，建议增加计算出的节点数量。
+
+ext2文件系统使用如下命令：
+
+#+BEGIN_SRC
+root # mke2fs -T small /dev/<device>
+#+END_SRC
+
+ext3和ext4文件系统，增加 =-j= 选项打开日志功能：
+
+#+BEGIN_SRC
+root # mke2fs -j -T small /dev/<device>
+#+END_SRC
+
+这将生成文件系统索引节点的四倍数量，“多少个字节一个索引节点”，从16KB减小到4KB每个索引节点。可以通过提供一个比例进一步调整：
+
+#+BEGIN_SRC
+root # mke2fs -i <ratio> /dev/<device>
+#+END_SRC
+
+** 分区使用文件系统
+
+有很多工具可以在分区或卷上创建文件系统：
+
+| Filesystem | Creation Command |
+|------------+------------------|
+| ext2       | mkfs.ext2        |
+| ext3       | mkfs.ext3        |
+| ext4       | mkfs.ext4        |
+| reiserfs   | mkreiserfs       |
+| xfs        | mkfs.xfs         |
+| jfs        | mkfs.jfs         |
+| vfat       | mkfs.vfat        |
+
+例如，设置启动分区（/dev/sda2）为ext2，主分区（/dev/sda4）为ext4。可以用如下命令：
+
+#+BEGIN_SRC
+root # mkfs.ext2 /dev/sda2
+root # mkfs.ext4 /dev/sda4
+#+END_SRC
+
+现在在新建的分区（或逻辑卷）上创建文件系统。
+
+** 激活交换分区
+
+=mkswap= 是一个初始化交换分区的命令：
+
+#+BEGIN_SRC
+root # mkswap /dev/sda3
+#+END_SRC
+
+=swapon= 用来激活交换分区：
+
+#+BEGIN_SRC
+root #swapon /dev/sda3
+#+END_SRC
+
+用上面提到的命令创建并激活交换分区。
+
 
 ----------------------------
 译注：
 partition table : 分区列表
 partition layout : 分区表
+reader : 用户
