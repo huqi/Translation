@@ -1504,4 +1504,103 @@ Update the /mnt/gentoo/etc/portage/make.conf file to match personal preference a
 
 Then continue with [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base][Installing the Gentoo base system]].
 
+* Chrooting
 
+** Optional: Selecting mirrors
+
+#+BEGIN_QUOTE
+*Warning*
+
+[[http://packages.gentoo.org/package/app-portage/mirrorselect][app-portage/mirrorselect]] has not been updated to handle modifying the target chroots repos.conf/gentoo.conf file yet. Also, the =SYNC= variable in make.conf is deprecated and no longer used by portage. This section needs to be updated, please skip for the time being...
+#+END_QUOTE
+
+In order to download source code quickly it is recommended to select a fast mirror. Portage will look in the make.conf file for the =GENTOO_MIRRORS= variable and use the mirrors listed therein. It is possible to surf to the Gentoo mirror list and search for a mirror (or mirrors) that is close to the system's physical location (as those are most frequently the fastest ones). However, we provide a nice tool called =mirrorselect= which provides users with a nice interface to select the mirrors needed. Just navigate to the mirrors of choice and press =Spacebar= to select one or more mirrors.
+
+#+BEGIN_SRC
+root # mirrorselect -i -o >> /mnt/gentoo/etc/portage/make.conf
+#+END_SRC
+
+A second important setting is the =SYNC= setting in make.conf. This variable contains the rsync server to use when updating the portage tree (the collection of ebuilds and related files containing all the information portage needs to download and install software). Again, it is possible to manually enter a =SYNC= server, but =mirrorselect= can ease that operation considerably:
+
+#+BEGIN_SRC
+root # mirrorselect -i -r -o >> /mnt/gentoo/etc/portage/make.conf
+#+END_SRC
+
+After running mirrorselect it is advisable to double-check the settings in /mnt/gentoo/etc/portage/make.conf !
+
+#+BEGIN_QUOTE
+*Note*
+
+When manually selecting a =SYNC= server in make.conf, check out the community mirrors list for the mirrors closest to you. It is recommended to choose a rotation link, such as rsync.us.gentoo.org, rather than choosing a single mirror. This helps spread out the load and provides a failsafe in case a specific mirror is offline.
+#+END_QUOTE
+
+** Copy DNS info
+
+One thing still remains to be done before entering the new environment and that is copying over the DNS information in /etc/resolv.conf. This needs to be done to ensure that networking still works even after entering the new environment. /etc/resolv.conf contains the name servers for the network.
+
+To copy this information, it is recommended to use the =-L= option to the =cp= command. This ensures that, if /etc/resolv.conf is a symbolic link, that the link's target file is copied instead of the symbolic link itself. Otherwise in the new environment the symbolic link would point to a non-existing file (as the link's target is most likely not available inside the new environment).
+
+#+BEGIN_SRC
+root # cp -L /etc/resolv.conf /mnt/gentoo/etc/
+#+END_SRC
+
+** Mounting the necessary filesystems
+
+In a few moments, the Linux root will be changed towards the new location. To make sure that the new environment works properly, certain filesystems need to be made available there as well.
+
+The filesystems that need to be made available are:
+
+    - ~/proc/~ which is a pseudo-filesystem (it looks like regular files, but is actually generated on-the-fly) from which the Linux kernel exposes information to the environment
+    - ~/sys/~ which is a pseudo-filesystem, like ~/proc/~ which it was once meant to replace, and is more structured than ~/proc/~
+    - ~/dev/~ is a regular file system, partially managed by the Linux device manager (usually =udev=), which contains all device files
+
+The ~/proc/~ location will be mounted on ~/mnt/gentoo/proc/~ whereas the other two are bind-mounted. The latter means that, for instance, ~/mnt/gentoo/sys/~ will actually be ~/sys/~ (it is just a second entry point to the same filesystem) whereas ~/mnt/gentoo/proc/~ is a new mount (instance so to speak) of the filesystem.
+
+#+BEGIN_SRC
+root # mount -t proc proc /mnt/gentoo/proc
+root # mount --rbind /sys /mnt/gentoo/sys
+root # mount --make-rslave /mnt/gentoo/sys
+root # mount --rbind /dev /mnt/gentoo/dev
+root # mount --make-rslave /mnt/gentoo/dev
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+The =--make-rslave= operations are needed for systemd support later in the installation.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+*Warning*
+
+When using non-Gentoo installation media, this might not be sufficient. Some distributions make /dev/shm a symbolic link to ~/run/shm/~ which, after the chroot, becomes invalid. Making ~/dev/shm/~ a proper tmpfs mount up front can fix this:
+
+#+BEGIN_SRC
+root # rm /dev/shm && mkdir /dev/shm
+root # mount -t tmpfs -o nosuid,nodev,noexec shm /dev/shm
+#+END_SRC
+
+Also ensure that mode 1777 is set
+
+#+BEGIN_SRC
+root # chmod 1777 /dev/shm
+#+END_SRC
+#+END_QUOTE
+
+** Entering the new environment
+
+Now that all partitions are initialized and the base environment installed, it is time to enter the new installation environment by chrooting into it. This means that the session will change its root (most top-level location that can be accessed) from the current installation environment (installation CD or other installation medium) to the installation system (namely the initialized partitions). Hence the name, change root or chroot.
+
+This chrooting is done in three steps.
+
+    1. The root location is changed from / (on the installation medium) to ~/mnt/gentoo/~ (on the partitions) using chroot
+    2. Some settings (those in /etc/profile) are reloaded in memory using the source command
+    3. The primary prompt is changed to help us remember that this session is inside a chroot environment.
+
+#+BEGIN_SRC
+root # chroot /mnt/gentoo /bin/bash
+root # source /etc/profile
+root # export PS1="(chroot) $PS1"
+#+END_SRC
+
+From this point, all actions performed are immediately on the new Gentoo Linux environment. Of course it is far from finished, which is why the installation still has some sections left :-)

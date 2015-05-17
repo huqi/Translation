@@ -17,7 +17,7 @@ Gentoo的安装可以视为10个步骤，依照下面的步骤，可以达到相
   1. 第1步后，用户处在一个准备安装Gentoo的环境中
   2. 第2步后，已经准备好用于安装Gentoo的网络环境
   3. 第3步后，硬盘初始化完毕，可以用于安装Gentoo
-  4. 第4步后，系统环境就绪，用户准备chroot新的环境中
+  4. 第4步后，系统环境就绪，用户准备改变根目录到新的环境中
   5. 第5步后，所有Gentoo都要安装的核心软件包已经安装完毕
   6. 第6步后，Linux内核安装完毕
   7. 第7步后，用户已经配置好了大部分Gentoo配置文件
@@ -1439,7 +1439,104 @@ MAKEOPTS="-j2"
 
 然后继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base][安装Gentoo基本系统]]。
 
+* 改变根目录
 
+** 选项：选择镜像
+
+#+BEGIN_QUOTE
+*警告*
+
+[[http://packages.gentoo.org/package/app-portage/mirrorselect][app-portage/mirrorselect]]尚未更新到修改repos.conf/gentoo.conf文件。同时，在make.conf中的 =SYNC= 已经不再使用。这一章节需要更新，请跳过……
+#+END_QUOTE
+
+如果想快速下载源代码，建议使用一个快速的镜像。Portage会在make.conf文件找 =GENTOO_MIRRORS= 变量里的镜像列表。这些列表可以是在Gentoo镜像列表中找一个地理临近的镜像（通常这个比较快）。然而我们提供了一个有用的工具 =mirrorselect= ，它给用户提供了一个选择需要镜像的接口。只需要移动到镜像上按 =Spacebar= 就可以选则一个或几个镜像。
+
+#+BEGIN_SRC
+root # mirrorselect -i -o >> /mnt/gentoo/etc/portage/make.conf
+#+END_SRC
+
+第二个重要的设置是make.conf中的 =SYNC= 变量。这个变量包含用于同步portage树的服务器（下载和安装软件需要的ebuild和相关的文件信息）。同样，可以手动设置 =SYNC= 变量，也可以使用 =mirrorselect= 如下操作：
+
+#+BEGIN_SRC
+root # mirrorselect -i -r -o >> /mnt/gentoo/etc/portage/make.conf
+#+END_SRC
+
+当运行完mirrorselect后，建议再检查一下/mnt/gentoo/etc/portage/make.conf文件！
+
+#+BEGIN_QUOTE
+*备注*
+
+在make.conf文件中手动修改 =SYNC= 变量时，检查镜像列表是不是离你最近的镜像。建议使用一个轮换链接，像rsync.us.gentoo.org而不是选择单一镜像。当一个镜像离线时，这会帮助分散加载其它镜像。
+#+END_QUOTE
+
+** 拷贝DNS信息
+
+在进入新环境前还有一件事要做，就是拷贝/etc/resolv.conf文件中的DNS信息。这可以保证在进入新环境后网络依然可以使用。/etc/resolv.conf包含域名服务器。
+
+建议使用 =cp= 加上 =-L= 选项来拷贝DNS信息。这个可以在/etc/resolv.conf是一个链接的时候，依然可以正确的拷贝原始文件，而不是拷贝链接。另一方面进入新环境后链接也会指向一个不存在的文件（在新环境中链接的目标文件很有可能无效）。
+
+#+BEGIN_SRC
+root # cp -L /etc/resolv.conf /mnt/gentoo/etc/
+#+END_SRC
+
+** 挂载必要的文件系统
+
+一会儿，Linux的根目录会切换到新的位置。为了确保新环境可以正常工作，最好创建一些必要的文件系统。
+
+  - ~/proc/~ 是一个显示Linux系统内核信息的伪文件系统（它看起来像一个正规文件，但是实际上它是即时生成的）
+  - ~/sys/~ 和 ~/proc/~ 很像也是一个文件系统，它曾经是为了替换 ~/proc/~ ，里面的信息也比它更有结构
+  - ~/dev/~ 是一个正式的文件系统，Linux设备管理器（经常是udev）可以管理它一部分，它包含了所有的设备文件
+
+~/proc/~ 挂在到 ~/mnt/gentoo/proc/~ 然而另两个是绑定挂载。下面就是例子， ~/mnt/gentoo/sys/~ 会挂载到 ~/sys/~ （同一个文件系统中的第二个进入点）然而 ~/mnt/gentoo/proc~ 是一个新的挂载点（暂时这么说）。
+
+#+BEGIN_SRC
+root # mount -t proc proc /mnt/gentoo/proc
+root # mount --rbind /sys /mnt/gentoo/sys
+root # mount --make-rslave /mnt/gentoo/sys
+root # mount --rbind /dev /mnt/gentoo/dev
+root # mount --make-rslave /mnt/gentoo/dev
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+=--make-rslave= 选项是为了支持稍后的systemd。
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+*警告*
+
+当使用非Gentoo的安装介质，这样做可能还不行。有一些发行片会把/dev/shm链接到 ~/run/shm/~ ，进入新环境后就会失效。将 ~/dev/shm/~ 同时挂载到文件系统上可以修正这个问题：
+
+#+BEGIN_SRC
+root # rm /dev/shm && mkdir /dev/shm
+root # mount -t tmpfs -o nosuid,nodev,noexec shm /dev/shm
+#+END_SRC
+
+确认设置为1777权限
+
+#+BEGIN_SRC
+root # chmod 1777 /dev/shm
+#+END_SRC
+#+END_QUOTE
+
+** 进入新环境
+
+现在所有的分区已经初始化完成并且设置好了基本的环境，是时候进入新的安装环境了。这意味着会话根目录（可以访问的最顶级目录）会从当前安装环境（安装CD或者其它安装介质）切换到安装系统环境（已经初始化的分区），因此得名，改变根目录或者chroot。
+
+改变根目录有三步。
+
+  1. 用chroot改变当前 ~/~ 到 ~/mnt/gentoo/~ （分区）
+  2. 用source命令重新加载一些设置到内存
+  3. 修改提示符标识这个会话是新改变的环境
+
+#+BEGIN_SRC
+root # chroot /mnt/gentoo /bin/bash
+root # source /etc/profile
+root # export PS1="(chroot) $PS1"
+#+END_SRC
+
+从此开始，所有的操作都会在新的Gentoo环境中进行。当然这还远没有完成安装，这也是为什么安装手册还有这么长的原因 :-)
 
 
 
@@ -1449,4 +1546,6 @@ partition table : 分区列表
 partition layout : 分区表
 reader : 用户
 alternative : 可选
-option : 选项
+optional : 选项
+note : 备注
+media : 介质
