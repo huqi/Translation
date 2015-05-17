@@ -1371,6 +1371,78 @@ root # tar xvjpf stage3-*.tar.bz2
 
 现在stage包已经安装完成，继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Configuring_the_compile_options][配置编译选项]]。
 
+* 配置编译选项
+
+** 简介
+
+可以能过设置一些变量影响Portage的行为来优化Gentoo。这些变量可以像设置环境变量一样设置（使用 =export= ），但是这些设置不是永久的。Portage的配置文件是/etc/portage/make.conf，想要一直保存这些设置可以修改这个文件。
+
+#+BEGIN_QUOTE
+*备注*
+
+所有可能设置的变量和注释可以在/mnt/gentoo/usr/share/portage/config/make.conf.example文件中找到。成功安装Gentoo只需要设置下面提到的变量。
+#+END_QUOTE
+
+接下来我们会讨论怎么启动一个编辑器（在手册中我们用 =nano= ）来修改优化变量。
+
+#+BEGIN_SRC
+root # nano -w /mnt/gentoo/etc/portage/make.conf
+#+END_SRC
+
+从make.conf.example文件我们可以看到文本的结构：以“#”开头的行为注释行，其它行用VARIABLE="content"的句法定义变量。我们下面会讨论几个变量。
+
+** CFLAGS和CXXFLAGS
+
+CFLAGS和CXXFLAGS变量是gcc的C和C++编译器的优化选项。因为每个程序都是不同的，为了获得最佳性能我们需要为每个程序定义这些变量，这不太方便管理，因此我们将这些标记定义在make.conf文件里。
+
+在make.conf文件中应该定义对系统最效的优化变量，不要在这个文件中定义实验性的变量；太多的优化变量会使程序的行为失常（崩溃，甚至更糟，故障）。
+
+我们不会解释所有的优化选项。如果想查看所有的选项可以阅读[[http://gcc.gnu.org/onlinedocs/][GNU在线手册(s)]]或者gcc帮助信息（ =info gcc= ——只能在可以工作的Linux系统中使用）。make.conf.example文件本身也包含一些示例和信息；不要忘记看一下这里。
+
+首先需要设置 ~-march=~ 或者 ~-mtune=~ 标记，它指定设备架构名称。在make.conf.example文件中可以找到其它选项的说明（注释）。通常会使用 /native/ 来告诉编译器选择当前系统的架构（用户安装Gentoo的架构）。
+
+其次需要设置 =-O= 标记（大写字母O，而不是数字0），它用来指定gcc优化级别。可以是s（大小优化），0（数字0——不优化），1、2或3是速度优化标记（每一个级别都包含前一个级别，并加一些额外优化）。默认推荐 =-O2= ， =-O3= 在系统级使用时会出现问题，所以建议坚持使用 =-O2= 。
+
+另一个常用的优化选项是 =-pipe= （使用管道而不是临时文件来联系各stage编译）。这不影响生成的代码，但是会消耗更多的内存。在小内存的系统上，gcc可能会被迫关闭。这种情况下不要使用这个标记。
+
+使用 =-fomit-frame-pointer= （在不需要的并且已经注册的函数中不保存frame指针）会在调试程序时产生不良后果。
+
+当定义好CFLAGS和CXXFLAGS后，把几个优化参数放在一个字符串中。默认的变量可以很好的为刚刚解压的stage3包工作。下面是一个例子：
+
+#+BEGIN_SRC
+CODE Example CFLAGS and CXXFLAGS variables
+
+CFLAGS="-march=native -O2 -pipe"
+# Use the same settings for both variables
+CXXFLAGS="${CFLAGS}"
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+[[https://wiki.gentoo.org/wiki/GCC_optimization][GCC优化文档]]有更多的优化选项和对系统作用的信息。
+#+END_QUOTE
+
+** MAKEOPTS
+
+=MAKEOPTS= 变量定义了在安装包时的并发编译数。CPUs（或者CPU内核数）的数量加一是个好选择，但是这个建议并不总是会完美运行。
+
+#+BEGIN_SRC
+CODE Example MAKEOPTS declaration in make.conf
+
+MAKEOPTS="-j2"
+#+END_SRC
+
+** 准备开始
+
+根据个人偏好修改/mnt/gentoo/etc/portage/make.conf文件并保存（nano用户按 =Ctrl+X= ）。
+
+然后继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Base][安装Gentoo基本系统]]。
+
+
+
+
+
 ----------------------------
 译注：
 partition table : 分区列表
