@@ -1325,5 +1325,113 @@ This also holds for /var/tmp.
 
 Later in the instructions the proc filesystem (a virtual interface with the kernel) as well as other kernel psuedo-filesystems will be mounted. But first we [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage][install the Gentoo installation files]].
 
+* Installing a stage tarball
 
+** Setting the date and time
 
+Before installing Gentoo, make sure that the date and time are set correctly. A mis-configured clock may lead to strange results in the future!
+
+To verify the current date/time, run date:
+
+#+BEGIN_SRC
+root # date
+Fri Mar 29 16:21:18 UTC 2005
+#+END_SRC
+
+If the date/time displayed is wrong, update it using the =date MMDDhhmmYYYY= syntax (Month, Day, hour, minute and Year). At this stage, it is recommended to use UTC time. Later on during the installation, the timezone will be defined.
+
+For instance, to set the date to March 29th, 16:21 in the year 2014:
+
+#+BEGIN_SRC
+root # date 032916212014
+#+END_SRC
+
+** Downloading the stage tarball
+
+Go to the Gentoo mountpoint where the root file system is mounted (most likely /mnt/gentoo):
+
+#+BEGIN_SRC
+root # cd /mnt/gentoo
+#+END_SRC
+
+Depending on the installation medium, there are a couple of tools
+available to download a stage. One of these tools is =links=, a
+non-graphical, menu-driven browser. To download a stage, surf to the
+Gentoo mirror list like so:
+
+#+BEGIN_SRC
+root # links http://www.gentoo.org/main/en/mirrors.xml
+#+END_SRC
+
+To use an HTTP proxy with links, pass on the URL with the /-http-proxy/ option:
+
+#+BEGIN_SRC
+root # links -http-proxy proxy.server.com:8080 http://www.gentoo.org/main/en/mirrors.xml
+#+END_SRC
+
+Next to =links= there is also the =lynx= browser. Like =links= it is a
+non-graphical browser but it is not menu-driven.
+
+#+BEGIN_SRC
+root # lynx http://www.gentoo.org/main/en/mirrors.xml
+#+END_SRC
+
+If a proxy needs to be defined, export the =http_proxy= and/or =ftp_proxy= variables:
+
+#+BEGIN_SRC
+root # export http_proxy="http://proxy.server.com:port"
+root # export ftp_proxy="http://proxy.server.com:port"
+#+END_SRC
+
+On the mirror list, select a mirror close by. Usually HTTP mirrors suffice, but other protocols are available as well. Move to the releases/amd64/autobuilds/ directory. There all available stage files are displayed (they might be stored within subdirectories named after the individual sub-architectures). Select one and press =D= to download.
+
+Like with the minimal installation CDs, additional downloads are available:
+
+    - A.CONTENTS file that contains a list of all files inside the stage tarball
+    - A.DIGESTS file that contains checksums of the stage file, in different algorithms
+    - A.DIGESTS.asc file that, like the .DIGESTS file, contains
+      checksums of the stage file in different algorithms, but is also cryptographically signed to ensure it is provided by the Gentoo project
+
+When finished, press Q to quit the browser.
+
+After downloading the stage file, it is possible to verify the integrity of the downloaded stage tarball. Use =openssl= and compare the output with the checksums provided by the .DIGESTS or .DIGESTS.asc file.
+
+For instance, to validate the SHA512 checksum:
+
+#+BEGIN_SRC
+root # openssl dgst -r -sha512 stage3-amd64-<release>.tar.bz2
+#+END_SRC
+
+Another way is to use the =sha512sum= command:
+
+#+BEGIN_SRC
+root # sha512sum stage3-amd64-<release>.tar.bz2
+#+END_SRC
+
+To validate the Whirlpool checksum:
+
+#+BEGIN_SRC
+root # openssl dgst -r -whirlpool stage3-amd64-<release>.tar.bz2
+#+END_SRC
+
+Compare the output of these commands with the value registered in the .DIGESTS(.asc) files. The values need to match, otherwise the downloaded file might be corrupt (or the digests file is).
+
+Just like with the ISO file, it is also possible to verify the
+cryptographic signature of the .DIGESTS.asc file using =gpg= to make
+sure the checksums have not been tampered with:
+
+#+BEGIN_SRC
+root # gpg --verify stage3-amd64-<release>.tar.bz2.DIGESTS.asc
+#+END_SRC
+
+** Unpacking the stage tarball
+
+Now unpack the downloaded stage onto the system. We use tar to proceed:
+
+#+BEGIN_SRC
+root # tar xvjpf stage3-*.tar.bz2
+#+END_SRC
+
+Make sure that the same options (xvjpf) are used. The x stands for Extract, the v for Verbose to see what happens during the extraction process (optional), the j for Decompress with bzip2, the p for Preserve permissions and the f to denote that we want to extract a File, not standard input.
+
+Now that the stage is installed, continue with [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Configuring_the_compile_options][Configuring the compile options]].

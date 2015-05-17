@@ -1267,9 +1267,114 @@ root # mount /dev/sda2 /mnt/gentoo/boot
 
 接下来会挂载proc文件系统（内核虚拟接口）以及其它伪文件系统，但是首先我们先[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Stage][安装Gentoo文件]]。
 
+* 安装stage包
+
+** 设置日期时间
+
+安装Gentoo前，先确认日期和时间设置正确。错误的时钟设置可能在接下来的安装出现问题。
+
+使用date检查当前日期和时间：
+
+#+BEGIN_SRC
+root # date
+Fri Mar 29 16:21:18 UTC 2005
+#+END_SRC
+
+如果日期和时间显示不正确，用 =MMDDhhmmYYYY= 句法（月日时分年）设置时间。建议使用UTC时间。在接下来的步骤中会设置时区。
+
+例如，设置时间为2014年3月29日16:21：
+
+#+BEGIN_SRC
+root # date 032916212014
+#+END_SRC
+
+** 下载stage包
+
+进入Gentoo系统文件挂载点（例如/mnt/gentoo）：
+
+#+BEGIN_SRC
+root # cd /mnt/gentoo
+#+END_SRC
+
+根据安装介质，有很多工具下载stage包。其中之一的 =links= 是一个字符界面菜单式的浏览器。访问Gentoo镜像列表下载stage包：
+
+#+BEGIN_SRC
+root # links http://www.gentoo.org/main/en/mirrors.xml
+#+END_SRC
+
+可以通过 /-http-proxy/ 选项在 =links= 中使用HTTP代理：
+
+#+BEGIN_SRC
+root # links -http-proxy proxy.server.com:8080 http://www.gentoo.org/main/en/mirrors.xml
+#+END_SRC
+
+和 =links= 一样的还有 =lynx= 浏览器。它和 =links= 很像，是一个字符型浏览器，但是不是菜单式的。
+
+#+BEGIN_SRC
+root # lynx http://www.gentoo.org/main/en/mirrors.xml
+#+END_SRC
+
+如果需要设置代理，需要设置 =http_proxy= 和/或 =ftp_proxy= 变量：
+
+#+BEGIN_SRC
+root # export http_proxy="http://proxy.server.com:port"
+root # export ftp_proxy="http://proxy.server.com:port"
+#+END_SRC
+
+在镜像列表中选择一个就近的地址。通常HTTP镜像已足够，但是我们也提供了其它协议。移动到releases/amd64/autobuilds/目录下。这里列出了所有可用的stage文件（可能存储在架构目录下子文件夹中）。选择一个按 =D= 下载。
+
+你最小安装CD一样，有一些附加的文件：
+
+  - A.CONTENTS文件包含stage包里的所有文件的列表
+  - A.DIGESTS文件包含stage包多种算法的校验值
+  - A.DIGESTS.asc文件像.DIGESTS文件一样也包含stage包多种算法的校验值，同时还包含加密签名以确保是由Gentoo项目提供的stage包。
+
+完成后，按 =Q= 退出。
+
+stage包下载完成后，可能需要验证。使用 =openssl= 和.DIGESTS或者.DIGESTS.asc中的校验值对比。
+
+例如，用SHA512校验：
+
+#+BEGIN_SRC
+root # openssl dgst -r -sha512 stage3-amd64-<release>.tar.bz2
+#+END_SRC
+
+另一种方法是使用 =sha512sum= 命令：
+
+#+BEGIN_SRC
+root # sha512sum stage3-amd64-<release>.tar.bz2
+#+END_SRC
+
+验证文件完整性：
+
+#+BEGIN_SRC
+root # openssl dgst -r -whirlpool stage3-amd64-<release>.tar.bz2
+#+END_SRC
+
+比较.DIGESTS(.asc)文件中的值和命令输出的值，如果两个值不一样，也就是说下载的文件已损坏。
+
+像ISO文件一样，也可以用.DIGESTS.asc文件验证数字签名，使用 =gpg= 命令来确认文件没有被篡改：
+
+#+BEGIN_SRC
+root # gpg --verify stage3-amd64-<release>.tar.bz2.DIGESTS.asc
+#+END_SRC
+
+** 解压stage包
+
+现在解压stage包到系统上。我们使用 =tar= 命令：
+
+#+BEGIN_SRC
+root # tar xvjpf stage3-*.tar.bz2
+#+END_SRC
+
+确认使用上面的选项（xvjpf）。x用来取出文件，v用来查看取出文件时的详细信息（可选），j用来解压bzip2格式，p用来保留权限，f表示指定文件不是输入。
+
+现在stage包已经安装完成，继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Configuring_the_compile_options][配置编译选项]]。
 
 ----------------------------
 译注：
 partition table : 分区列表
 partition layout : 分区表
 reader : 用户
+alternative : 可选
+option : 选项
