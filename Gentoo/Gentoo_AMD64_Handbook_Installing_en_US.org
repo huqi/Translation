@@ -1786,3 +1786,24 @@ The remainder of the Gentoo Handbook focuses on OpenRC as the default init suppo
 
 The Gentoo handbook can then be followed with that page in mind.
 
+* Timezone
+
+Select the timezone for the system. Look for the available timezones in /usr/share/zoneinfo/, then write it in the /etc/timezone file.
+
+#+BEGIN_SRC
+root # ls /usr/share/zoneinfo
+#+END_SRC
+
+Suppose the timezone of choice is Europe/Brussels:
+
+#+BEGIN_SRC
+root # echo "Europe/Brussels" > /etc/timezone
+#+END_SRC
+
+Please avoid the /usr/share/zoneinfo/Etc/GMT* timezones as their names do not indicate the expected zones. For instance, GMT-8 is in fact GMT+8.
+
+Next, reconfigure the [[http://packages.gentoo.org/package/sys-libs/timezone-data][sys-libs/timezone-data]] package, which will update the /etc/localtime file for us, based on the /etc/timezone entry. The /etc/localtime file is used by the system C library to know the timezone the system is in.
+
+#+BEGIN_SRC
+root # emerge --config sys-libs/timezone-data
+#+END_SRC

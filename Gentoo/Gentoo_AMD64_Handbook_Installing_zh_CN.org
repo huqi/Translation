@@ -1713,9 +1713,32 @@ USE="-* X acl alsa ..."
 
 * 可选：使用systemd
 
-Gentoo安装手册余下的章节会默认使用OpenRC作为默认的初始化支持系统。如果想使用systemd或者计划使用Gnome3.8或者更高版本（需要systemd），请查询[[https://wiki.gentoo.org/wiki/Systemd][systemd]]页面，那里详细的阐述了安装和配置方法。
+Gentoo安装手册余下的章节会默认使用OpenRC作为初始化支持系统。如果想使用systemd或者计划使用Gnome3.8或者更高版本（需要systemd支持），请查询[[https://wiki.gentoo.org/wiki/Systemd][systemd]]页面，那里详细的阐述了安装和配置方法。
 
 接下来的Gentoo手册会考虑这种情况。
+
+* 时区
+
+为系统选择时区，在/usr/share/zoneinfo/里查找有效时区，然后写入到/etc/timezone文件中。
+
+#+BEGIN_SRC
+root # ls /usr/share/zoneinfo
+#+END_SRC
+
+假如选择Europe/Brussels时区：
+
+#+BEGIN_SRC
+root # echo "Europe/Brussels" > /etc/timezone
+#+END_SRC
+
+请避免使用/usr/sharezoneinfo/Etc/GMT*时区，它们不代表预期的时区。例如GMT-8实际上是GMT+8。
+
+接着，重新配置[[http://packages.gentoo.org/package/sys-libs/timezone-data][sys-libs/timezone-data]]包，它可以根据/etc/timezone为我们更新/etc/localtime文件。/etc/localtime文件用于系统C库识别系统时区。
+
+#+BEGIN_SRC
+root # emerge --config sys-libs/timezone-data
+#+END_SRC
+
 
 
 
