@@ -1739,9 +1739,84 @@ root # echo "Europe/Brussels" > /etc/timezone
 root # emerge --config sys-libs/timezone-data
 #+END_SRC
 
+* 语言设置
 
+大多数用户会想在系统上使用一两个语言。
 
+语言设置不仅是设置系统交互的语言，还设置了字串排序，日期显示等规则。
 
+系统所支持的语言设置在/etc/locale.gen文件中。
+
+#+BEGIN_SRC
+root # nano -w /etc/locale.gen
+#+END_SRC
+
+下面的语言设置是一个例子，包括了英文（美国）和德文（德国）和字符集格式（如UTF-8）。
+
+#+BEGIN_SRC
+文件 /etc/locale.gen 开启美国和德国区域和字符集格式
+
+en_US ISO-8859-1
+en_US.UTF-8 UTF-8
+de_DE ISO-8859-1
+de_DE@euro ISO-8859-15
+#+END_SRC
+
+#+BEGIN_QUOTE
+*警告*
+
+我们强烈建议最少即用一个UTF-8语言，因为很多应用需要它。
+#+END_QUOTE
+
+#+BEGIN_SRC
+root # locale-gen
+#+END_SRC
+
+使用 =locale -a= 验证语言设置是否有效。
+
+一但完成，就到了设置系统范围的语言设置的时候了。我们再次使用 =eselect= ，不过现在用的是 =locale= 模块。
+
+用 =eselect locale list= 查看有效的设置：
+
+#+BEGIN_SRC
+root # eselect locale list
+Available targets for the LANG variable:
+  [1] C
+  [2] POSIX
+  [3] en_US
+  [4] en_US.iso88591
+  [5] en_US.utf8
+  [6] de_DE
+  [7] de_DE.iso88591
+  [8] de_DE.iso885915
+  [9] de_DE.utf8
+  [ ] (free form)
+#+END_SRC
+
+用 =eselect locale set VALUE= 来设置并确认：
+
+#+BEGIN_SRC
+root # eselect locale set 9
+#+END_SRC
+
+也可以通过/etc/env.d/02locale文件手动完成：
+
+#+BEGIN_SRC
+文件 /etc/env.d/02locale 手动设置系统语言环境
+
+LANG="de_DE.UTF-8"
+LC_COLLATE="C"
+#+END_SRC
+
+请确认已经设置好了语言环境，在稍后构建系统和部署其它软件时，可能的警告或错误提示需要它。
+
+现在重新加载环境：
+
+#+BEGIN_SRC
+root # env-update && source /etc/profile
+#+END_SRC
+
+我们制作了完整的[[https://wiki.gentoo.org/wiki/Localization/HOWTO][语言指南]]来帮助用户完成这步。另一个有趣的文章是[[https://wiki.gentoo.org/wiki/UTF-8][UTF-8]]指南，里面有在系统中开启UTF-8的具体信息。
 
 
 
@@ -1756,3 +1831,4 @@ optional : 选项
 note : 备注
 media : 介质
 profile : 用户配置
+locales : 区域

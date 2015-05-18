@@ -1807,3 +1807,86 @@ Next, reconfigure the [[http://packages.gentoo.org/package/sys-libs/timezone-dat
 #+BEGIN_SRC
 root # emerge --config sys-libs/timezone-data
 #+END_SRC
+
+* Configure locales
+
+Most users will want to use only one or two locales on their system.
+
+Locales specify not only the language that the system should use to interact with the system, but also what the rules are for sorting strings, displaying dates and times, etc.
+
+The locales that a system should support should be mentioned in /etc/locale.gen.
+
+#+BEGIN_SRC
+root # nano -w /etc/locale.gen
+#+END_SRC
+
+The following locales are an example to get both English (United States) and German (Germany) with the accompanying character formats (like UTF-8).
+
+#+BEGIN_SRC
+FILE /etc/locale.gen Enabling US and DE locales with the appropriate character formats
+
+en_US ISO-8859-1
+en_US.UTF-8 UTF-8
+de_DE ISO-8859-1
+de_DE@euro ISO-8859-15
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Warning*
+
+We strongly suggest to use at least one UTF-8 locale because some applications may require it.
+#+END_QUOTE
+
+The next step is to run =locale-gen=. It will generate all the locales specified in the /etc/locale.gen file.
+
+#+BEGIN_SRC
+root # locale-gen
+#+END_SRC
+
+To verify that the selected locales are now available, run =locale -a=.
+
+Once done, it is now time to set the system-wide locale settings. Again we use =eselect= for this, now with the =locale= module.
+
+With =eselect locale list=, the available targets are displayed:
+
+#+BEGIN_SRC
+root # eselect locale list
+Available targets for the LANG variable:
+  [1] C
+  [2] POSIX
+  [3] en_US
+  [4] en_US.iso88591
+  [5] en_US.utf8
+  [6] de_DE
+  [7] de_DE.iso88591
+  [8] de_DE.iso885915
+  [9] de_DE.utf8
+  [ ] (free form)
+#+END_SRC
+
+With =eselect locale set VALUE= the correct locale can be set:
+
+#+BEGIN_SRC
+root # eselect locale set 9
+#+END_SRC
+
+Manually, this can still be accomplished through the /etc/env.d/02locale file:
+
+#+BEGIN_SRC
+FILE /etc/env.d/02locale Manually setting system locale definitions
+
+LANG="de_DE.UTF-8"
+LC_COLLATE="C"
+#+END_SRC
+
+Make sure a locale is set, as the system would otherwise display warnings and errors during kernel builds and other software deployments later in the installation.
+
+Now reload the environment:
+
+#+BEGIN_SRC
+root # env-update && source /etc/profile
+#+END_SRC
+
+We made a full [[https://wiki.gentoo.org/wiki/Localization/HOWTO][Localization guide]] to help the user guide through this process. Another interesting article is the [[https://wiki.gentoo.org/wiki/UTF-8][UTF-8]] guide for very specific informations to enable UTF-8 on the system.
+
+
