@@ -1604,3 +1604,178 @@ root # export PS1="(chroot) $PS1"
 #+END_SRC
 
 From this point, all actions performed are immediately on the new Gentoo Linux environment. Of course it is far from finished, which is why the installation still has some sections left :-)
+
+* Configuring portage
+
+** Installing a portage snapshot
+
+Next step is to install a portage snapshot, a collection of files that inform portage what software titles are available to install, which profiles the administrator can select, etc.
+
+The use of =emerge-webrsync= is recommended. This will fetch the latest portage snapshot (which Gentoo releases on a daily basis) from one of Gentoo's mirrors and install it onto the system.
+
+#+BEGIN_SRC
+root # emerge-webrsync
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+During this operation, =emerge-webrsync= might complain about a missing ~/usr/portage/~ location. This is to be expected and nothing to worry about - the tool will create the location.
+#+END_QUOTE
+
+From this point onward, portage might mention that certain updates are recommended to be executed. This is because certain system packages installed through the stage3 file might have newer versions available, and portage is now aware of this because a new portage snapshot is installed. This can be safely ignored for now; the updates can be triggered after the Gentoo installation has finished.
+
+** Optional: Updating the portage tree
+
+It is possible to update the portage tree to the latest version. The previous =emerge-webrsync= command will have installed a very recent portage snapshot (usually recent up to 24h) so this step is definitely optional.
+
+Suppose there is a need for the last package updates (up to 1 hour), then use =emerge --sync=. This command will use the rsync protocol to update the portage tree (which was fetched earlier on through =emerge-webrsync=) to the latest state.
+
+#+BEGIN_SRC
+root # emerge --sync
+#+END_SRC
+
+On slow terminals, like some framebuffers or serial consoles, it is recommended to use the =--quiet= option to speed up the process:
+
+#+BEGIN_SRC
+root # emerge --sync --quiet
+#+END_SRC
+
+** Reading news items
+
+When a portage tree is synchronized to the system, portage might warn the user with the following:
+
+#+BEGIN_SRC
+CODE Portage informing the user about news items
+
+ * IMPORTANT: 2 news items need reading for repository 'gentoo'.
+ * Use eselect news to read news items.
+#+END_SRC
+
+Portage news items were created to provide a communication medium to push critical messages to users via the rsync tree. To manage them, use =eselect news=. The =eselect= application is a Gentoo application that allows for a common management interface towards system changes and operations. In this case, =eselect= is asked to use its =news= module.
+
+For the =news= module, three operations are most used:
+
+    - With =list= an overview of the available news items is displayed
+    - With =read= the news items can be read
+    - With =purge= news items can be removed once they have been read and will not be reread anymore
+
+#+BEGIN_SRC
+root # eselect news list
+root # eselect news read
+#+END_SRC
+
+More information about the newsreader is available through its manual page:
+
+#+BEGIN_SRC
+root # man news.eselect
+#+END_SRC
+
+** Choosing the right profile
+
+A profile is a building block for any Gentoo system. Not only does it specify default values for =USE=, =CFLAGS= and other important variables, it also locks the system to a certain range of package versions. This is all maintained by the Gentoo developers.
+
+You can see what profile the system is currently using with =eselect=, now using the =profile= module:
+
+#+BEGIN_SRC
+root # eselect profile list
+Available profile symlink targets:
+  [1]   default/linux/amd64/13.0 *
+  [2]   default/linux/amd64/13.0/desktop
+  [3]   default/linux/amd64/13.0/desktop/gnome
+  [4]   default/linux/amd64/13.0/desktop/kde
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+The output of the command is just an example and evolves over time.
+#+END_QUOTE
+
+As can be seen, there are also desktop subprofiles available for some architectures.
+
+After viewing the available profiles for the amd64 architecture, users can select a different profile to use:
+
+#+BEGIN_SRC
+root # eselect profile set 2
+#+END_SRC
+
+In order to select a pure 64-bit environment, with no 32-bit applications or libraries, use a non-multilib profile:
+
+#+BEGIN_SRC
+root # eselect profile list
+Available profile symlink targets:
+  [1]   default/linux/amd64/13.0 *
+  [2]   default/linux/amd64/13.0/desktop
+  [3]   default/linux/amd64/13.0/desktop/gnome
+  [4]   default/linux/amd64/13.0/desktop/kde
+  [5]   default/linux/amd64/13.0/no-multilib
+#+END_SRC
+
+Next select the no-multilib profile:
+
+#+BEGIN_SRC
+root #eselect profile set 5
+root #eselect profile list
+Available profile symlink targets:
+  [1]   default/linux/amd64/13.0
+  [2]   default/linux/amd64/13.0/desktop
+  [3]   default/linux/amd64/13.0/desktop/gnome
+  [4]   default/linux/amd64/13.0/desktop/kde
+  [5]   default/linux/amd64/13.0/no-multilib *
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+The developer subprofile is specifically for Gentoo Linux development and is not meant to be used by regular users.
+#+END_QUOTE
+
+** Configuring the USE variable
+
+=USE= is one of the most powerful variables Gentoo provides to its users. Several programs can be compiled with or without optional support for certain items. For instance, some programs can be compiled with gtk-support, or with qt-support. Others can be compiled with or without SSL support. Some programs can even be compiled with framebuffer support (svgalib) instead of X11 support (X-server).
+
+Most distributions compile their packages with support for as much as possible, increasing the size of the programs and startup time, not to mention an enormous amount of dependencies. With Gentoo users can define what options a package should be compiled with. This is where =USE= comes into play.
+
+In the =USE= variable users define keywords which are mapped onto compile-options. For instance, =ssl= will compile ssl-support in the programs that support it. =-X= will remove X-server support (note the minus sign in front). =gnome gtk -kde -qt4= will compile programs with gnome (and gtk) support, and not with kde (and qt) support, making the system fully tweaked for GNOME (if the architecture supports it).
+
+The default USE settings are placed in the make.defaults files of the Gentoo profile used by the system. Gentoo uses a (complex) inheritance system for its profiles, which we will not dive into at this stage. The easiest way to check the currently active =USE= settings is to run =emerge --info= and select the line that starts with USE:
+
+#+BEGIN_SRC
+root # emerge --info | grep ^USE
+USE="X acl alsa amd64 berkdb bindist bzip2 cli cracklib crypt cxx dri ..."
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+The above example is truncated, the actual list of USE settings is much, much larger.
+#+END_QUOTE
+
+A full description on the available USE flags can be found on the system in /usr/portage/profiles/use.desc.
+
+#+BEGIN_SRC
+root # less /usr/portage/profiles/use.desc
+#+END_SRC
+
+Inside the =less= command, scrolling can be done using the =↑= and =↓= keys, and exited by pressing =q=.
+
+As an example we show a USE setting for a KDE-based system with DVD, ALSA and CD Recording support:
+
+#+BEGIN_SRC
+root # nano -w /etc/portage/make.conf
+#+END_SRC
+
+#+BEGIN_SRC
+*FILE* /etc/portage/make.conf Enabling USE for a KDE-based system with DVD, ALSA and cd recording support
+
+USE="-gtk -gnome qt4 kde dvd alsa cdr"
+#+END_SRC
+
+When USE is defined in /etc/portage/make.conf it is added (or removed if the USE flag starts with the - sign) from that default list. Users who want to ignore any default USE settings and manage it completely themselves should start the USE definition in make.conf with -*:
+
+#+BEGIN_SRC
+*FILE* /etc/portage/make.conf Ignoring default USE flags
+
+USE="-* X acl alsa ..."
+#+END_SRC

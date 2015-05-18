@@ -1538,6 +1538,181 @@ root # export PS1="(chroot) $PS1"
 
 从此开始，所有的操作都会在新的Gentoo环境中进行。当然这还远没有完成安装，这也是为什么安装手册还有这么长的原因 :-)
 
+* 配置portage
+
+** 安装portage快照
+
+下一步安装portage快照，快照一个包含所有有效软件安装信息的文件集合，用户可以选择这些软件包。
+
+建议使用 =emerge-webrsync= ，它用来从Gentoo镜像抓取最近的portage快照（Gentoo基本每天都会更新）并安装快照到系统中。
+
+#+BEGIN_SRC
+root # emerge-webrsync
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+这个操作时， =emerge-webrsync= 可能会提示缺少 ~/usr/portage/~ 目录。这不需要担心——这个工具会创建这个目录。
+
+从正在开始，portage可能提示建议执行一些更新。这是因为stage3包里的一些已经安装的软件包有了新的版本，新的快照安装后portage知道了哪些包需要更新。现在可以忽略这个问题；等Gentoo安装完成后我们可以再更新。
+
+** 选项：更新protage树
+
+可以更新portage树到最新的版本。前面提到的 =emerge-webrsync= 命令会安装最近的portage快照（通常24小时内），所以这一步绝对是可选的。
+
+如果想更新到最后一个包更新（最近1个小时），那么使用 =emerge --sync= 。这个命令会使用rsync协议更新portage树（上面提到的通过 =emerge-webrsync= 抓取的东西）到最近的状态。
+
+#+BEGIN_SRC
+root # emerge --sync
+#+END_SRC
+
+在较慢的终端中，像一些帧缓冲或者连续的控制台，建议使用 =--quiet= 选项来加快速度：
+
+#+BEGIN_SRC
+root # emerge --sync --quiet
+#+END_SRC
+
+** 阅读新闻条目
+
+当同步了portage树后，portage可能会出现如下提示：
+
+#+BEGIN_SRC
+CODE Portage informing the user about news items
+
+ * IMPORTANT: 2 news items need reading for repository 'gentoo'.
+ * Use eselect news to read news items.
+#+END_SRC
+
+Portage新闻条目是通过rsync树向用户推送重要信息的媒介。使用 =eselect news= 来管理它们。 =eselect= 是Gentoo用来操作和更改系统的通用管理接口。在这个例子里，我们使用 =eselect= 的 =news= 模块。
+
+=news= 模块有三个常用的操作：
+
+  - =list= 用来显示可用新闻条目的概述
+  - =read= 用来读取新闻条目
+  - =purge= 如果已经读完了新闻条目并且不想再显示，可以用它来删除新闻条目
+
+#+BEGIN_SRC
+root # eselect news list
+root # eselect news read
+#+END_SRC
+
+用户手册中有更多关于新闻阅读器的信息：
+
+#+BEGIN_SRC
+root # man news.eselect
+#+END_SRC
+
+** 选择合适的用户配置
+
+用户配置文件是Gentoo系统的基础。它不仅指定默认的 =USE= 、 =CFLAGS= 和其它的重要变量，它还锁定了软件包的版本范围。这都功能都由Gentoo开发者维护。
+
+你可以使用 =eselect= 来查看当前使用的profile，现在使用 =profile= 模块：
+
+#+BEGIN_SRC
+root # eselect profile list
+Available profile symlink targets:
+  [1]   default/linux/amd64/13.0 *
+  [2]   default/linux/amd64/13.0/desktop
+  [3]   default/linux/amd64/13.0/desktop/gnome
+  [4]   default/linux/amd64/13.0/desktop/kde
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+命令的输出只是一个例子，接下来会有变化。
+#+END_QUOTE
+
+可以看到，架构下面还有一些分类用户配置。
+
+查看了amd64架构下的用户配置文件后，用户可以选择自已的配置：
+
+#+BEGIN_SRC
+root # eselect profile set 2
+#+END_SRC
+
+如果想要一个纯净的64位环境，不要32位应用程序和库，使用non-multilib用户配置：
+
+#+BEGIN_SRC
+root # eselect profile list
+Available profile symlink targets:
+  [1]   default/linux/amd64/13.0 *
+  [2]   default/linux/amd64/13.0/desktop
+  [3]   default/linux/amd64/13.0/desktop/gnome
+  [4]   default/linux/amd64/13.0/desktop/kde
+  [5]   default/linux/amd64/13.0/no-multilib
+#+END_SRC
+
+下面选择no-multilib用户配置：
+
+#+BEGIN_SRC
+root #eselect profile set 5
+root #eselect profile list
+Available profile symlink targets:
+  [1]   default/linux/amd64/13.0
+  [2]   default/linux/amd64/13.0/desktop
+  [3]   default/linux/amd64/13.0/desktop/gnome
+  [4]   default/linux/amd64/13.0/desktop/kde
+  [5]   default/linux/amd64/13.0/no-multilib *
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+developer用户配置文件是为了Gentoo Linux开发，它不是为了普通用户使用。
+
+** 配置USE变量
+
+=USE= 是一个Gentoo提供给用户非常有用的变量。可以带或不带支持某些特定条目来编译一些程序，例如，一些程序可以用gtk-support或者qt-support来编译。另一些可以用或者不用SSL支持。一些程序甚至可以用帧支持（svgalib）来替代X11支持（X-server）。
+
+一些发行版会携带尽可能多的支持来编译它们的程序，不介意过多的依赖，增加了程序的大小和启动时间。Gentoo用户可以定义编译包时所用的支持。这也是 =USE=　的用处。
+
+用户可以定义在映射在编译选项中的关键字到 =USE= 变量中。例如， =ssl= 可以编译ssl支持到可用的软件中。 =-X= 可以删除X-server支持（注意前面的减号）。 =gnome gtk -kde -qt4= 会支持gnome（和gtk），但不支持kde（qt）支持，完全支持GNOME微调（如果架构支持）。
+
+默认的USE设置放在make.defaults文件中，这个文件是Gentoo的默认用户配置文件。Gentoo使用了一个继承系统（复用）的配置文件，我们不会详细讨论它。最简单的查看当前活动的 =USE= 设置的方法是使用 =emerge --info= ，然后找到USE开头的行：
+
+#+BEGIN_SRC
+root # emerge --info | grep ^USE
+USE="X acl alsa amd64 berkdb bindist bzip2 cli cracklib crypt cxx dri ..."
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+上面的例子是缩短的，真正的USE设置列表很长。
+#+END_QUOTE
+
+USE标记的完整描述可以在/usr/portage/profiles/use.desc文件中找到。
+
+#+BEGIN_SRC
+root # less /usr/portage/profiles/use.desc
+#+END_SRC
+
+在 =less= 命令中，可以使用 =↑= 和 =↓= 来滚动屏幕，用 =q= 退出。
+
+例如，我们看一个支持DVD ALSA和CD刻录并基于KDE的USE设置：
+
+#+BEGIN_SRC
+root # nano -w /etc/portage/make.conf
+#+END_SRC
+
+#+BEGIN_SRC
+*文件* /etc/portage/make.conf 基于KDE，支持DVD、ALSA和CD刻录
+
+USE="-gtk -gnome qt4 kde dvd alsa cdr"
+#+END_SRC
+
+用户可以在/etc/portage/make.conf文件中增加（或者前面加减号删除USE标记）USE设置，用户可以忽略所有默认的USE设置，完全自已控制，在make.conf文件中以-*开始定义USE：
+
+#+BEGIN_SRC
+*文件* /etc/portage/make.conf 忽略默认USE标记
+
+USE="-* X acl alsa ..."
+#+END_SRC
+
+
+
 
 
 ----------------------------
@@ -1549,3 +1724,4 @@ alternative : 可选
 optional : 选项
 note : 备注
 media : 介质
+profile : 用户配置
