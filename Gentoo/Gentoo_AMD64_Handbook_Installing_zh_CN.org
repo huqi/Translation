@@ -1711,6 +1711,14 @@ USE="-gtk -gnome qt4 kde dvd alsa cdr"
 USE="-* X acl alsa ..."
 #+END_SRC
 
+* 可选：使用systemd
+
+Gentoo安装手册余下的章节会默认使用OpenRC作为默认的初始化支持系统。如果想使用systemd或者计划使用Gnome3.8或者更高版本（需要systemd），请查询[[https://wiki.gentoo.org/wiki/Systemd][systemd]]页面，那里详细的阐述了安装和配置方法。
+
+接下来的Gentoo手册会考虑这种情况。
+
+
+
 
 
 

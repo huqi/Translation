@@ -1779,3 +1779,10 @@ When USE is defined in /etc/portage/make.conf it is added (or removed if the USE
 
 USE="-* X acl alsa ..."
 #+END_SRC
+
+* Optional: Using systemd
+
+The remainder of the Gentoo Handbook focuses on OpenRC as the default init support system. If systemd is wanted instead, or are planning to use Gnome 3.8 and later (which requires systemd), please consult the [[https://wiki.gentoo.org/wiki/Systemd][systemd]] page as it elaborates on the different configuration settings and methods.
+
+The Gentoo handbook can then be followed with that page in mind.
+
