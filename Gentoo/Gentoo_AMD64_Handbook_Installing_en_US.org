@@ -1889,4 +1889,29 @@ root # env-update && source /etc/profile
 
 We made a full [[https://wiki.gentoo.org/wiki/Localization/HOWTO][Localization guide]] to help the user guide through this process. Another interesting article is the [[https://wiki.gentoo.org/wiki/UTF-8][UTF-8]] guide for very specific informations to enable UTF-8 on the system.
 
+* Installing the sources
 
+The core around which all distributions are built is the Linux kernel. It is the layer between the user programs and the system hardware. Gentoo provides its users several possible kernel sources. A full listing with description is available at the [[https://wiki.gentoo.org/wiki/Kernel/Overview][Kernel overview page]].
+
+For amd64-based systems Gentoo recommends the sys-kernel/gentoo-sources package.
+
+Choose an appropriate kernel source and install it using =emerge=:
+
+#+BEGIN_SRC
+root # emerge --ask sys-kernel/gentoo-sources
+#+END_SRC
+
+This will install the Linux kernel sources in ~/usr/src/~ in which a symbolic link called linux will be pointing to the installed kernel source:
+
+#+BEGIN_SRC
+root # ls -l /usr/src/linux
+lrwxrwxrwx    1 root   root    12 Oct 13 11:04 /usr/src/linux -> linux-3.16.5-gentoo
+#+END_SRC
+
+Now it is time to configure and compile the kernel sources. There are
+two approaches for this:
+
+    1. either the kernel is manually configured and build, or
+    2. a tool called =genkernel= is used to automatically build and install the Linux kernel
+
+We explain the manual configuration as the default choice here as it is the best way to optimize an environment. 

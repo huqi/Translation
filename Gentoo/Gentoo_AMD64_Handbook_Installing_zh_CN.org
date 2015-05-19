@@ -1818,8 +1818,31 @@ root # env-update && source /etc/profile
 
 我们制作了完整的[[https://wiki.gentoo.org/wiki/Localization/HOWTO][语言指南]]来帮助用户完成这步。另一个有趣的文章是[[https://wiki.gentoo.org/wiki/UTF-8][UTF-8]]指南，里面有在系统中开启UTF-8的具体信息。
 
+* 安装源代码
 
+内核是所有发行版的核心。这是用户程序与系统硬件的中间层。Gentoo给用户提供了好几种内核源码。在[[https://wiki.gentoo.org/wiki/Kernel/Overview][内核概述页面]]有完整描述列表。
 
+基于amd64位的系统，Gentoo推荐[[http://packages.gentoo.org/package/sys-kernel/gentoo-sources][sys-kernel/gentoo-sources]]包。
+
+选择一个合适的内核源码并使用 =emerge= 来安装：
+
+#+BEGIN_SRC
+root # emerge --ask sys-kernel/gentoo-sources
+#+END_SRC
+
+这会把内核源码安装到 ~/usr/src/~ 目录下，一个叫做linux的链接指向你的内核源代码。
+
+#+BEGIN_SRC
+root # ls -l /usr/src/linux
+lrwxrwxrwx    1 root   root    12 Oct 13 11:04 /usr/src/linux -> linux-3.16.5-gentoo
+#+END_SRC
+
+现在配置并编译内核源代码。有两种方法：
+
+  1. 手动配置并构建内核
+  2. 用 =genkernel= 自动构建并安装Linux内核
+
+我们默认用手动配置内核的方法，它是优化系统环境最好的方法。
 
 ----------------------------
 译注：
