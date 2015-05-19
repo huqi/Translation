@@ -1915,3 +1915,218 @@ two approaches for this:
     2. a tool called =genkernel= is used to automatically build and install the Linux kernel
 
 We explain the manual configuration as the default choice here as it is the best way to optimize an environment. 
+
+* Default: Manual configuration
+
+** Introduction
+
+Manually configuring a kernel is often seen as the most difficult
+procedure a Linux user ever has to perform. Nothing is less true --
+after configuring a couple of kernels no-one even remembers that it
+was difficult ;)
+
+However, one thing is true: it is vital to know the system when a
+kernel is configured manually. Most information can be gathered by
+emerging sys-apps/pciutils which contains the =lspci= command:
+
+#+BEGIN_SRC
+root # emerge --ask sys-apps/pciutils
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+Inside the chroot, it is safe to ignore any pcilib warnings (like pcilib: cannot open /sys/bus/pci/devices) that =lspci= might throw out.
+#+END_QUOTE
+
+Another source of system information is to run =lsmod= to see what kernel modules the installation CD uses as it might provide a nice hint on what to enable.
+
+Now go to the kernel source directory and execute =make menuconfig=. This will fire up menu-driven configuration screen.
+
+#+BEGIN_SRC
+root # cd /usr/src/linux
+root # make menuconfig
+#+END_SRC
+
+The Linux kernel configuration has many, many sections. Let's first list some options that must be activated (otherwise Gentoo will not function, or not function properly without additional tweaks). We also have a Gentoo kernel configuration guide on the Gentoo wiki that might help out further.
+
+** Activating required options
+
+Make sure that every driver that is vital to the booting of the system (such as SCSI controller, ...) is compiled in the kernel and not as a module, otherwise the system will not be able to boot completely.
+
+Next select the exact processor type. It is also recommended to enable MCE features (if available) so that users are able to be notified of any hardware problems. On some architectures (such as x86_64), these errors are not printed to dmesg, but to /dev/mcelog. This requires the app-admin/mcelog package.
+
+Also select Maintain a devtmpfs file system to mount at /dev so that critical device files are already available early in the boot process.
+
+#+BEGIN_SRC
+KERNEL Enabling devtmpfs support
+
+Device Drivers --->
+  Generic Driver Options --->
+    [*] Maintain a devtmpfs filesystem to mount at /dev
+    [ ]   Automount devtmpfs at /dev, after the kernel mounted the rootfs
+#+END_SRC
+
+Now go to File Systems and select support for the filesystems you use. Don't compile the file system that is used for the root filesystem as module, otherwise the Gentoo system will not be able to mount the partition. Also select Virtual memory and /proc file system.
+
+#+BEGIN_SRC
+KERNEL Selecting necessary file systems
+
+File systems --->
+(Select one or more of the following options as needed by your system)
+  <*> Second extended fs support
+  <*> Ext3 journalling file system support
+  <*> The Extended 4 (ext4) filesystem
+  <*> Reiserfs support
+  <*> JFS filesystem support
+  <*> XFS filesystem support
+  ...
+  Pseudo Filesystems --->
+    [*] /proc file system support
+    [*] Virtual memory file system support (former shm fs)
+#+END_SRC
+
+If PPPoE is used to connect to the Internet, or a dial-up modem is used, then enable the following options:
+
+#+BEGIN_SRC
+KERNEL Selecting PPPoE necessary drivers
+
+Device Drivers --->
+  Network device support --->
+    <*> PPP (point-to-point protocol) support
+    <*>   PPP support for async serial ports
+    <*>   PPP support for sync tty ports
+#+END_SRC
+
+The two compression options won't harm but are not definitely needed, neither does the PPP over Ethernet option, that might only be used by ppp when configured to do kernel mode PPPoE.
+
+Don't forget to include support in the kernel for the network (Ethernet or wireless) cards.
+
+Most systems also have multiple cores at their disposal, so it is important to activate Symmetric multi-processing support:
+
+#+BEGIN_SRC
+KERNEL Activating SMP support
+
+Processor type and features  --->
+  [*] Symmetric multi-processing support
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+In multi-core systems, each core counts as one processor.
+#+END_QUOTE
+
+If USB input devices (like keyboard or mouse) are used don't forget to enable those as well:
+
+#+BEGIN_SRC
+KERNEL Activating USB Support for input devices
+
+Device Drivers --->
+  [*] HID Devices  --->
+    <*>   USB Human Interface Device (full HID) support
+#+END_SRC
+
+** Architecture specific kernel configuration
+
+Make sure to select IA32 Emulation if 32-bit programs should be supported (multilib). Gentoo will install a multilib system (mixed 32-bit/64-bit computing) by default, so unless a no-multilib profile is used, this option is required.
+
+#+BEGIN_SRC
+KERNEL Selecting processor types and features
+
+Processor type and features  --->
+   [ ] Machine Check / overheating reporting
+   [ ]   Intel MCE Features
+   [ ]   AMD MCE Features
+  Processor family (AMD-Opteron/Athlon64)  --->
+    ( ) Opteron/Athlon64/Hammer/K8
+    ( ) Intel P4 / older Netburst based Xeon
+    ( ) Core 2/newer Xeon
+    ( ) Intel Atom
+    ( ) Generic-x86-64
+Executable file formats / Emulations  --->
+   [*] IA32 Emulation
+#+END_SRC
+
+Enable GPT partition label support if that was used previously when partitioning the disk:
+
+#+BEGIN_SRC
+KERNEL Enable support for GPT
+
+-*- Enable the block layer --->
+    ...
+    Partition Types --->
+    [*] Advanced partition selection
+      ...
+      [*] EFI GUID Partition support
+#+END_SRC
+
+Enable EFI stub support and EFI variables in the Linux kernel if UEFI is used to boot the system:
+
+#+BEGIN_SRC
+KERNEL Enable support for UEFI
+
+Processor type and features  --->
+    [*] EFI runtime service support
+    [*]   EFI stub support
+
+Firmware Drivers  --->
+    <*> EFI Variable Support via sysfs
+#+END_SRC
+
+** Compiling and installing
+
+With the configuration now done, it is time to compile and install the
+kernel. Exit the configuration and start the compilation process:
+
+#+BEGIN_SRC
+root # make && make modules_install
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+It is possible to enable parallel builds using =make -jX= with X being the number of parallel tasks that the build process is allowed to launch. This is similar to the instructions about /etc/portage/make.conf earlier, with the =MAKEOPTS= variable.
+#+END_QUOTE
+
+When the kernel has finished compiling, copy the kernel image to ~/boot/~. This is handled by the =make install= command:
+
+#+BEGIN_SRC
+root # make install
+#+END_SRC
+
+This will copy the kernel image into ~/boot/~ together with the System.map file and the kernel configuration file.
+
+With UEFI systems, create the /boot/efi/boot/ location, and then copy the kernel into this location, calling it bootx64.efi:
+
+#+BEGIN_SRC
+root # mkdir -p /boot/efi/boot
+root # cp /boot/vmlinuz /boot/efi/boot/bootx64.efi
+#+END_SRC
+
+** Optional: Building an initramfs
+
+In certain cases it is necessary to build an initramfs - an initial ram-based file system. The most common reason is when important file system locations (like ~/usr/~ or ~/var/~) are on separate partitions. With an initramfs, these partitions can be mounted using the tools available inside the initramfs.
+
+Without an initramfs, there is a huge risk that the system will not boot up properly as the tools that are responsible for mounting the file systems need information that resides on those file systems. An initramfs will pull in the necessary files into an archive which is used right after the kernel boots, but before the control is handed over to the init tool. Scripts on the initramfs will then make sure that the partitions are properly mounted before the system continues booting.
+
+To install an initramfs, install sys-kernel/genkernel first, then have it generate an initramfs:
+
+#+BEGIN_SRC
+root # emerge genkernel
+root # genkernel --install initramfs
+#+END_SRC
+
+In order to enable specific support in the initramfs, such as lvm or raid, add in the appropriate options to =genkernel=. See =genkernel --help= for more information. In the next example we enables support for LVM and software raid (mdadm):
+
+#+BEGIN_SRC
+root # genkernel --lvm --mdadm --install initramfs
+#+END_SRC
+
+The initramfs will be stored in ~/boot/~. The resulting file can be found by simply listing the files starting with initramfs:
+
+#+BEGIN_SRC
+root # ls /boot/initramfs*
+#+END_SRC
+
+Now continue with Kernel modules.

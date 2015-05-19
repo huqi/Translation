@@ -585,6 +585,7 @@ root # dhcpcd -HD eth0
 *备注*
 
 =iwconfig= 命令可能和体系结构有关。如果找不到这个命令，请参考[[ftp://ftp.linux-wlan.org/pub/linux-wlan-ng/README][linux-wlan-ng]]项目。
+#+END_QUOTE
 
 当使用无线网卡（802.11），在进一步设置之前要配置无线设置。可以使用 =iwconfig= 想查看当前的无线链接设置。执行 =iwconfig= 可能会显示如下信息：
 
@@ -1554,6 +1555,7 @@ root # emerge-webrsync
 *备注*
 
 这个操作时， =emerge-webrsync= 可能会提示缺少 ~/usr/portage/~ 目录。这不需要担心——这个工具会创建这个目录。
+#+END_QUOTE
 
 从正在开始，portage可能提示建议执行一些更新。这是因为stage3包里的一些已经安装的软件包有了新的版本，新的快照安装后portage知道了哪些包需要更新。现在可以忽略这个问题；等Gentoo安装完成后我们可以再更新。
 
@@ -1661,6 +1663,7 @@ Available profile symlink targets:
 *备注*
 
 developer用户配置文件是为了Gentoo Linux开发，它不是为了普通用户使用。
+#+END_QUOTE
 
 ** 配置USE变量
 
@@ -1843,6 +1846,218 @@ lrwxrwxrwx    1 root   root    12 Oct 13 11:04 /usr/src/linux -> linux-3.16.5-ge
   2. 用 =genkernel= 自动构建并安装Linux内核
 
 我们默认用手动配置内核的方法，它是优化系统环境最好的方法。
+
+* 默认：手动配置
+
+** 简介
+
+手动配置内核经常被Linux用户认为是比较困难的一个步骤。其实不然——当配置完几次内核后，将没有人记得它的困难;)
+
+当然，有一件事是真的：了解系统是手动配置内核的前提。在[[http://packages.gentoo.org/package/sys-apps/pciutils][sys-apps/pciutils]]包中的 =lspci= 命令收集了很多信息：
+
+#+BEGIN_SRC
+root # emerge --ask sys-apps/pciutils
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+在切换根目录的情况下，可以忽略pcilib的警告（例如：pcilib: cannot open /sys/bus/pci/devices/）。
+#+END_QUOTE
+
+另一个查看系统信息的方法是使用 =lsmod= 命令，它会列出安装CD正在使用的内核模块，这是一个很好的提示。
+
+现在进入内核源代码目录运行 =make menuconfig=。它会启动一个菜单式的配置界面。
+
+#+BEGIN_SRC
+root # cd /usr/src/linux
+root # make menuconfig
+#+END_SRC
+
+配置Linux内核有很多选项。我们先看一些必要项（也就是说，不做这些微调，Gentoo不能正常使用）。在Gentoo wiki里也有一个[[https://wiki.gentoo.org/wiki/Kernel/Gentoo_Kernel_Configuration_Guide][Gentoo内核配置向导]]进一步帮助用户。
+
+** 启动必要选项
+
+确保系统启动所必要的驱动（像SCSI控制器，等）编译到内核，而不是做为一个模块，不这么做的话系统将不会正确启动。
+
+下一步选择正确的处理器类型。我们建议打开MCE选项（如果可以），这样的话在硬件出现问题时会收到通知。在一些架构下（如x86_64），这此错误不会输出到dmesg，而是输出到/dev/mcelog。这需要[[http://packages.gentoo.org/package/app-admin/mcelog][app-admin/mcelog]]包。
+
+同时选择Maintain a devtmpfs file system to mout at /dev，这样启动过程开始前，主要的设备文件已经初始化完成了。
+
+#+BEGIN_SRC
+内核 打开devtmpfs支持
+
+Device Drivers --->
+  Generic Driver Options --->
+    [*] Maintain a devtmpfs filesystem to mount at /dev
+    [ ]   Automount devtmpfs at /dev, after the kernel mounted the rootfs
+#+END_SRC
+
+现在到File Systems并且选择你使用的文件系统。不要把主要的文件系统编译成模块，这样的话Gentoo不能够挂载分区。同时选择Virtual memory和/proc file system。
+
+#+BEGIN_SRC
+内核 选择必要的文件系统
+
+File systems --->
+(Select one or more of the following options as needed by your system)
+  <*> Second extended fs support
+  <*> Ext3 journalling file system support
+  <*> The Extended 4 (ext4) filesystem
+  <*> Reiserfs support
+  <*> JFS filesystem support
+  <*> XFS filesystem support
+  ...
+  Pseudo Filesystems --->
+    [*] /proc file system support
+    [*] Virtual memory file system support (former shm fs)
+#+END_SRC
+
+如果使用PPPoE连接因特网，或者使用调制解调器拨号，那么要打开如下选项：
+
+#+BEGIN_SRC
+内核 选择PPPoE必须的驱动
+
+Device Drivers --->
+  Network device support --->
+    <*> PPP (point-to-point protocol) support
+    <*>   PPP support for async serial ports
+    <*>   PPP support for sync tty ports
+#+END_SRC
+
+两个压缩选项没什么害处，但也不是必要的，PPP over Ethernet选择也是这样，可能只有当PPPoE配置为内核模式时被ppp使用到。
+
+不要忘记在内核里选择网卡（以太网或者无线）。
+
+有很多系统的处理器是多核的，所以选择Symmetric multi-processing support也很重要：
+
+#+BEGIN_SRC
+内核 打开SMP支持
+
+Processor type and features  --->
+  [*] Symmetric multi-processing support
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+在多核系统中，每个核算一个处理器。
+#+END_QUOTE
+
+如果使用USB输入设备（如键盘或鼠标），别忘记打开这些选项：
+
+#+BEGIN_SRC
+内核 打开输入设备USB支持
+
+Device Drivers --->
+  [*] HID Devices  --->
+    <*>   USB Human Interface Device (full HID) support
+#+END_SRC
+
+** 如构相关配置
+
+如果想运行32位的程序，需要确认打开了IA32 Emulation（multilib）。系统会默认安装multilib系统（32位/64位计算），所以除了使用no-multiblib用户配置文件，都需要这个选项。
+
+#+BEGIN_SRC
+内核 选择处理器类形和选项
+
+Processor type and features  --->
+   [ ] Machine Check / overheating reporting
+   [ ]   Intel MCE Features
+   [ ]   AMD MCE Features
+  Processor family (AMD-Opteron/Athlon64)  --->
+    ( ) Opteron/Athlon64/Hammer/K8
+    ( ) Intel P4 / older Netburst based Xeon
+    ( ) Core 2/newer Xeon
+    ( ) Intel Atom
+    ( ) Generic-x86-64
+Executable file formats / Emulations  --->
+   [*] IA32 Emulation
+#+END_SRC
+
+如果像前面提到的那样磁盘分区的话，需要打开GPT分区表支持：
+
+#+BEGIN_SRC
+内核 打开GPT支持
+
+-*- Enable the block layer --->
+    ...
+    Partition Types --->
+    [*] Advanced partition selection
+      ...
+      [*] EFI GUID Partition support
+#+END_SRC
+
+如果使用UEFI来启动系统，打开EFI stub support和EFI variables：
+
+#+BEGIN_SRC
+KERNEL Enable support for UEFI
+
+Processor type and features  --->
+    [*] EFI runtime service support
+    [*]   EFI stub support
+
+Firmware Drivers  --->
+    <*> EFI Variable Support via sysfs
+#+END_SRC
+
+** 编译安装
+
+配置完成，现在开始编译并安装内核。退出配置界面，开始编译：
+
+#+BEGIN_SRC
+root # make && make modules_install
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+如果想并发构建系统，使用 =make -jX= ,X是并发任务数。这和前面手册里提到的，/etc/portage/make.conf文件中的 =MAKEOPTS= 变量一样。
+#+END_QUOTE
+
+当内核编译完成后，拷贝镜像到 ~/boot/~ 目录下。这可以使用 =make install= 命令完成：
+
+#+BEGIN_SRC
+root # make install
+#+END_SRC
+
+这会把内核镜像，System.map文件和内核配置文件拷贝到 ~/boot/~ 目录下。
+
+在UEFI系统上，创建/boot/efi/boot/目录，拷贝内核到这个目录下，并改名为bootx64.efi：
+
+#+BEGIN_SRC
+root # mkdir -p /boot/efi/boot
+root # cp /boot/vmlinuz /boot/efi/boot/bootx64.efi
+#+END_SRC
+
+** 选项：构建initramfs
+
+特殊的情况下需要构建一个initramfs——一个基于内存的文件系统。大多数的原因是重要的系统目录（像 ~/usr/~ 或 ~/var/~ ）在不同的分区。有了initramfs，可以用initramfs里的工具正常挂载这些分区。
+
+如果没有initramfs，系统可能会存在一个巨大的风险，因为不能挂载文件系统，导致系统不能读取需要的信息，从而不能正确启动。initramfs可以把必要的文件先存档，这个存档会在内核启动后和把控制权交到初始化工具前使用。initramfs里的脚本会确保在系统继续启动前正确挂载分区。
+
+要安装initramfs，先安装[[http://packages.gentoo.org/package/sys-kernel/genkernel][sys-kernel/genkernel]]，然后生成一个initramfs：
+
+#+BEGIN_SRC
+root # emerge genkernel
+root # genkernel --install initramfs
+#+END_SRC
+
+要想在initramfs里安装指定支持，像lvm或者raid，要增加对应的选项到genkernel。用 =genkernel --help= 查看更多信息。下面的例子打开LVM和raid（mdadm）：
+
+#+BEGIN_SRC
+root # genkernel --lvm --mdadm --install initramfs
+#+END_SRC
+
+initramfs会保存在 ~/boot/~ 中。可以查看initramfs开头的文件看到结果：
+
+#+BEGIN_SRC
+root # ls /boot/initramfs*
+#+END_SRC
+
+继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Kernel_modules][Kernel modules]]。
+
+
+
 
 ----------------------------
 译注：
