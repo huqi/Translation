@@ -2056,6 +2056,53 @@ root # ls /boot/initramfs*
 
 继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Kernel_modules][Kernel modules]]。
 
+* 可选：使用genkernel
+
+如果手动配置令你望而却步，建议使用 =genkernel= 。它会自动配置和构建内核。
+
+=genkernel= 使用安装CD内核的配置来配置一个内核。这就意味着使用 =genkernel= 来构建内核，在启动时系统一般会检测所有的硬件设备，就像安装CD一样。因为 =genkernel= 不需要任何手动配置，这对于不想编译自已的内核的用户是个好主意。
+
+现在，我们来看怎么使用genkernel。首先，emerge [[http://packages.gentoo.org/package/sys-kernel/genkernel][sys-kernel/genkernel]]安装程序。
+
+#+BEGIN_SRC
+root # emerge --ask sys-kernel/genkernel
+#+END_SRC
+
+下一步，编辑/etc/fstab文件，以便包含 ~/boot/~ 的第二个字段，作为第一个字段并指向正确的设备。如果按照手册的例子操作，这个设备可能是ext2文件系统的/dev/sd2设备。文件的条目看起来像这样：
+
+#+BEGIN_SRC
+root # nano -w /etc/fstab
+#+END_SRC
+
+#+BEGIN_SRC
+文件 /etc/fstab 配置启动分区挂载点
+
+/dev/sda2	/boot	ext2	defaults	0 2
+#+BEGIN_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+下面的Gentoo安装指导, 会再次配置/etc/fstab文件。 =genkernel= 现在需要这样的启动分区设置，它会读取这个文件。
+#+END_QUOTE
+
+现在，执行 =genkernel all= 编译内核源代码。请注意，这样编译的内核支持几乎所有的硬件设备，编译会消耗很长时间！
+
+#+BEGIN_QUOTE
+*备注*
+
+如果启动分区不是使用的ext2或者ext3文件系统，可能需要用 =genkernel --menuconfig all= 来手动配置内核的文件系统。LVM2的用户需要增加 =--lvm= 参数。
+
+#+BEGIN_SRC
+root # genkernel all
+#+END_SRC
+
+如果完成了内核编译，一个拥有完整模块和初始化内存磁盘（initramfs）就已创建完成。我们会在接下来配置启动引导器，会使用内核和initrd。配置启动引导器文件时，把内核和initrd的名字写在这个配置中。启动硬件检查（像安装CD那样）之后，initrd会立即启动，然后才会进入“正式的”系统。
+
+#+BEGIN_SRC
+root # ls /boot/kernel* /boot/initramfs*
+#+END_SRC
+
 
 
 
