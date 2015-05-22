@@ -2192,6 +2192,151 @@ root # nano -w /etc/fstab
 
 重新检查/etc/fstab文件，保存退出并继续安装。
 
+* 网络信息
+
+** 主机和域名信息
+
+用户可以选择为个人电脑命名。这看上去很简单，但是很多用户难以为他们的Linux计算机起一个合适的名字。为了加快速度，你需要知道这个设置不是最终的——后面还可以修改。下面的例子，主机名为 /tux/ 域名为 /homenetwork/ 。
+
+#+BEGIN_SRC
+root # nano -w /etc/conf.d/hostname
+# 设置hostname为主机名
+hostname="tux"
+#+END_SRC
+
+第二，如果需要域名，请设置/etc/conf.d/net。这只有在ISP或者网络管理员需要时设置，或者有一个DNS服务器并且没有DHCP服务器。如果系统使用DHCP获取动态IP地址，不需要担心DNS或者域名。
+
+#+BEGIN_QUOTE
+*Note*
+
+默认情况下系统没有/etc/conf.d/net文件，所以需要建一个。
+#+END_QUOTE
+
+#+BEGIN_SRC
+root # nano -w /etc/conf.d/net
+# 设置dns_domain_lo为域名
+dns_domain_lo="homenetwork"
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+如果没有设置域名，当用户登录系统时，会看到This is hostname.(none)的信息提示。这需要编辑/etc/issue并删除 =.\O= 行来修复这个问题。
+#+END_QUOTE
+
+如果需要一个NIS域名（用户如果不知道这是什么，那就不需要），定义如下：
+
+#+BEGIN_SRC
+root # nano -w /etc/conf.d/net
+# 设置nis_domain_lo为NIS域名
+nis_domain_lo="my-nisdomain"
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+请用 =bzless= 阅读/usr/share/doc/netifrc-*/net.example.bz2来获取更多设置DNS和NIS的信息。同时，你可以有兴趣安装[[http://packages.gentoo.org/package/net-dns/openresolv][net-dns/openresolv]]来管理DNS/NIS设置。
+#+END_QUOTE
+
+** 配置网络
+
+在Gentoo Linux安装过程中，网络已经配置好了。然而，这只是在安装CD下，而不是已安装的环境。现在，配置已安装Gentoo Linux系统中的网络。
+
+#+BEGIN_QUOTE
+*备注*
+
+更多的关于网络的信息，包括像绑定、桥接、802.1Q虚拟网或者无线网络设置等高级话题，可以查看Gentoo网络配置章节。
+#+END_QUOTE
+
+所有的网络信息集中在/etc/conf.d/net。它使用了一个简单的但也许并不直观语法。但是不要害怕，下面会有详细的说明。在/usr/share/doc/netifrc-*/net.example.bz2里有一个不同配置的完整注释。
+
+首先安装[[http://packages.gentoo.org/package/net-misc/netifrc][net-misc/netifrc]]：
+
+#+BEGIN_SRC
+root # emerge --ask --noreplace net-misc/netifrc
+#+END_SRC
+
+默认使用DHCP。为了能使DHCP工作，需要安装一个DHCP客户端。在下面安装系统必要工具时会说明。
+
+如果因为DHCP需要明确的选项，因为不总是需要DHCP，所以网络连接需要配置，那么打开/etc/conf.d/net：
+
+#+BEGIN_SRC
+root # nano -w /etc/conf.d/net
+#+END_SRC
+
+设置 =config_eth0= 和 =route_eth0= 为IP地址和路由信息：
+
+#+BEGIN_QUOTE
+*备注*
+
+这里假设网络接口是eth0。这依赖于系统。如果安装媒介正确连网的话，这里建议使用安装媒介使用的网络接口名称，可以在网络接口命名找到更多信息。
+#+END_QUOTE
+
+#+BEGIN_SRC
+文件 /etc/conf.d/net静态IP设置
+
+config_eth0="192.168.0.2 netmask 255.255.255.0 brd 192.168.0.255"
+routes_eth0="default via 192.168.0.1"
+#+END_SRC
+
+使用DHCP，设置 =config_eth0= ：
+
+#+BEGIN_SRC
+文件 /etc/conf.d/net DHCP设置
+
+config_eth0="dhcp"
+#+END_SRC
+
+请阅读/usr/share/doc/netifrc-*/net.example.bz2获得所有有效选项。如果需要详细设置DHCP选项，请仔细阅读DHCP客户端帮助页面。
+
+如果系统有好几个网络接口，那么重复上面 =config_eth1= 和 =config_eth2= 等步骤。
+
+现在保存退出并继续。
+
+** 开机启动网络
+
+要想开机激活网络接口，需要将它加入到默认运行级别。
+
+#+BEGIN_SRC
+root # cd /etc/init.d
+root # ln -s net.lo net.eth0
+root # rc-update add net.eth0 default
+#+END_SRC
+
+如果系统有几个网络接口，需要把像上面net.eth0那样创建相应的net.*文件。
+
+在系统启动后，假如我们发现网络接口名（当前为 =eth0= ）错了，那么执行下面的步骤来纠正：
+
+  1. 更新/etc/conf.d/net文件为正确的接口名（比如 =enp3s0= 替换 =eth0= ）
+  2. 创建新的符号链接（如/etc/init.d/net.enp3s0）
+  3. 删除旧的符号链接（ =rm /etc/init.d/net.eth0= ）
+  4. 添加新的接口到默认运行级
+  5. 删除旧的接口， =rc-update del net.eth0 default=
+
+** 主机文件
+
+下面了解一下Linux网络环境。这被定义在/etc/hosts文件中，这个文件用来当域名服务不能正确解析时，来解决域名和IP之间的转换。
+
+#+BEGIN_SRC
+root # nano -w /etc/hosts
+#+END_SRC
+
+#+BEGIN_SRC
+文件 /etc/hosts 填写网络信息
+
+# 这里必须添加当前系统定义
+127.0.0.1     tux.homenetwork tux localhost
+
+# 定义可选的附加网络
+192.168.0.5   jenny.homenetwork jenny
+192.168.0.6   benny.homenetwork benny
+#+END_SRC
+
+保存退出并继续。
+
+** 选项：启用PCMCIA
+
+PCMCIA用户需要安装[[http://packages.gentoo.org/package/sys-apps/pcmciautils][sys-apps/pcmciautils]]包。
 
 
 
