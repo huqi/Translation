@@ -2456,5 +2456,29 @@ root # nano -w /etc/conf.d/hwclock
 
 If the hardware clock is not using UTC, then it is necessary to set clock="local" in the file. Otherwise the system might show clock skew behavior.
 
+* System logger
 
+Some tools are missing from the stage3 archive because several packages provide the same functionality. It is now up to the user to choose which ones to install.
+
+The first tool to decide on has to provide logging facilities for the system. Unix and Linux have an excellent history of logging capabilities -- if needed, everything that happens on the system can be logged in log files. This happens through the system logger.
+
+Gentoo offers several system loggers to choose from. A few of these are:
+
+    - [[http://packages.gentoo.org/package/app-admin/sysklogd][app-admin/sysklogd]], which is the traditional set of system logging daemons
+    - [[http://packages.gentoo.org/package/app-admin/syslog-ng][app-admin/syslog-ng]], an advanced system logger
+    - [[http://packages.gentoo.org/package/app-admin/metalog][app-admin/metalog]] which is a highly-configurable system logger
+
+Others are available through portage as well - the number of available packages increases on a daily basis.
+
+If sysklogd or syslog-ng is going to be used, it is recommended to install [[http://packages.gentoo.org/package/app-admin/logrotate][app-admin/logrotate]] afterwards as those system loggers don't provide any rotation mechanism for the log files.
+
+To install the system logger of choice, emerge it and have it added to the default runlevel using =rc-update=. The following example installs [[http://packages.gentoo.org/package/app-admin/syslog-ng][app-admin/syslog-ng]]
+
+#+BEGIN_SRC
+root # emerge --ask app-admin/syslog-ng
+#+END_SRC
+
+#+BEGIN_SRC
+root # rc-update add syslog-ng default
+#+END_SRC
 

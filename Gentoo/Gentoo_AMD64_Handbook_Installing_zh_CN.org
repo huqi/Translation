@@ -2374,8 +2374,31 @@ root # nano -w /etc/conf.d/hwclock
 
 如果硬件没有使用UTC时钟，那么需要在文件中设置clock="local"。不然的话系统会显示错误的时间。
 
+* 系统日志
 
+某些工具stage3没有提供，是因为一些包提供了相同的功能。现在是用户选择安装的时候了。
 
+首先给系统安装一个日志工具。Unix和Linux有非常好的日志能力——如果需要，系统会把所有事情都记录到日志文件中。这些都要通过系统日志工具完成。
+
+Gentoo提供了几种系统日志工具。例如如下：
+
+  - [[http://packages.gentoo.org/package/app-admin/sysklogd][app-admin/sysklogd]]，传统的系统日志服务
+  - [[http:http://packages.gentoo.org/package/app-admin/syslog-ng][app-admin/syslog-ng]]，高级的系统日志管理器
+  - [[http://packages.gentoo.org/package/app-admin/metalog][app-admin/metalog]]，高度定制化的日志管理器
+
+可以通过portage安装其它可用的日志服务——每天都会增加可用的包。
+
+如果使用sysklogd或者syslog-ng，建议安装[[http://packages.gentoo.org/package/app-admin/logrotate][app-admin/logrotage]]作为系统日志管理器，并且不要使用任何旋转日志功能。
+
+安装选择的系统日志管理器，emerge它并用 =rc-update= 把它加入到默认运行级别当中。下面是安装[[http://packages.gentoo.org/package/app-admin/syslog-ng][app-admin/syslog-ng]]。
+
+#+BEGIN_SRC
+root # emerge --ask app-admin/syslog-ng
+#+END_SRC
+
+#+BEGIN_SRC
+root # rc-update add syslog-ng default
+#+END_SRC
 
 
 
