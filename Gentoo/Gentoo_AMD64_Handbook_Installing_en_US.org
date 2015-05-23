@@ -2418,3 +2418,43 @@ PCMCIA users should now install the sys-apps/pcmciautils package.
 #+BEGIN_SRC
 root # emerge --ask sys-apps/pcmciautils
 #+END_SRC
+
+* System information
+
+** Root password
+
+Set the root password using the =passwd= command.
+
+#+BEGIN_SRC
+root # passwd
+#+END_SRC
+
+The root Linux account is an all-powerful account, so pick a strong password. Later an additional regular user account will be created for daily operations.
+
+
+Init and boot configuration
+
+Gentoo (at least when using OpenRC) uses /etc/rc.conf to configure the services, startup, and shutdown of a system. Open up /etc/rc.conf and enjoy all the comments in the file. Review the settings and change where needed.
+
+#+BEGIN_SRC
+root # nano -w /etc/rc.conf
+#+END_SRC
+
+Next, open /etc/conf.d/keymaps to handle keyboard configuration. Edit it to configure and select the right keyboard.
+
+#+BEGIN_SRC
+root # nano -w /etc/conf.d/keymaps
+#+END_SRC
+
+Take special care with the keymap variable. If the wrong keymap is selected, then weird results will come up when typing on the keyboard.
+
+Finally, edit /etc/conf.d/hwclock to set the clock options. Edit it according to personal preference.
+
+#+BEGIN_SRC
+root # nano -w /etc/conf.d/hwclock
+#+END_SRC
+
+If the hardware clock is not using UTC, then it is necessary to set clock="local" in the file. Otherwise the system might show clock skew behavior.
+
+
+

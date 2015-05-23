@@ -2338,6 +2338,47 @@ root # nano -w /etc/hosts
 
 PCMCIA用户需要安装[[http://packages.gentoo.org/package/sys-apps/pcmciautils][sys-apps/pcmciautils]]包。
 
+* 系统信息
+
+** Root密码
+
+使用 =passwd= 命令设置root密码。
+
+#+BEGIN_SRC
+root # passwd
+#+END_SRC
+
+Linux的root用户是一个拥有所有权限的账户，所以需要选择一个强密码。一会儿会建立一个用于日常工作的常规用户。
+
+** 初始化启动配置
+
+Gentoo（使用OpenRC的近期版本）使用/etc/rc.conf来配置服务，开机启动，和关闭系统。打开/etc/rc.conf研究所有的注释。查看设置并且按照你的需要修改。
+
+#+BEGIN_SRC
+root # nano -w /etc/rc.conf
+#+END_SRC
+
+下一步，打开/etc/conf.d/keymaps来配置键盘。编辑并配置一个正确的键盘。
+
+#+BEGIN_SRC
+root # nano -w /etc/conf.d/keymaps
+#+END_SRC
+
+要特别小心键盘变量。如果配置了一个不正确的键盘，在输入时会出现奇怪的结果。
+
+最后，编辑/etc/conf.d/hwclock来设置时钟。你可以根据自已的偏好来编辑它。
+
+#+BEGIN_SRC
+root # nano -w /etc/conf.d/hwclock
+#+END_SRC
+
+如果硬件没有使用UTC时钟，那么需要在文件中设置clock="local"。不然的话系统会显示错误的时间。
+
+
+
+
+
+
 
 
 ----------------------------
