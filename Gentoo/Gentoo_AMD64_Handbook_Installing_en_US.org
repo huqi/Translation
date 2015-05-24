@@ -2482,3 +2482,21 @@ root # emerge --ask app-admin/syslog-ng
 root # rc-update add syslog-ng default
 #+END_SRC
 
+* Optional: Cron daemon
+
+Next is the cron daemon. Although it is optional and not required for every system, it is wise to install one.
+
+A cron daemon executes scheduled commands. It is very handy if some command needs to be executed regularly (for instance daily, weekly or monthly).
+
+Gentoo offers several possible cron daemons, including [[http://packages.gentoo.org/package/sys-process/bcron][sys-process/bcron]], [[http://packages.gentoo.org/package/sys-process/dcron][sys-process/dcron]], [[http://packages.gentoo.org/package/sys-process/fcron][sys-process/fcron]] and [[http://packages.gentoo.org/package/sys-process/cronie][sys-process/cronie]]. Installing one of them is similar to installing a system logger. The following example uses sys-process/cronie:
+
+#+BEGIN_SRC
+root # emerge --ask sys-process/cronie
+root # rc-update add cronie default
+#+END_SRC
+
+If dcron or fcron are used, an additional initialization command needs to be executed:
+
+#+BEGIN_SRC
+root # crontab /etc/crontab
+#+END_SRC
