@@ -2500,3 +2500,12 @@ If dcron or fcron are used, an additional initialization command needs to be exe
 #+BEGIN_SRC
 root # crontab /etc/crontab
 #+END_SRC
+
+* Optional: File indexing
+
+In order to index the file system to provide faster file location
+capabilities, install [[http://packages.gentoo.org/package/sys-apps/mlocate][sys-apps/mlocate]].
+
+#+BEGIN_SRC
+root # emerge --ask sys-apps/mlocate
+#+END_SRC

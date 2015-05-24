@@ -2400,7 +2400,7 @@ root # emerge --ask app-admin/syslog-ng
 root # rc-update add syslog-ng default
 #+END_SRC
 
-* 可选：Cron守护进程
+* 选项：Cron守护进程
 
 下一个是cron守护进程。虽然它是可选安装，并不是每个系统必须的工具，但是安装它是明智的选择。
 
@@ -2419,6 +2419,13 @@ root # rc-update add cronie default
 root # crontab /etc/crontab
 #+END_SRC
 
+* 选项：文件索引
+
+如果想索引文件系统，使系统拥有更快的文件定位能力，安装[[http://packages.gentoo.org/package/sys-apps/mlocate][sys-apps/mlocate]]。
+
+#+BEGIN_SRC
+root # emerge --ask sys-apps/mlocate
+#+END_SRC
 
 
 
