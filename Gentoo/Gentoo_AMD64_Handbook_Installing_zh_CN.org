@@ -2427,6 +2427,23 @@ root # crontab /etc/crontab
 root # emerge --ask sys-apps/mlocate
 #+END_SRC
 
+* 选项：远程访问
+
+安装完成后，如果想行程访问系统，需要把sshd初始化脚本加入到默认启动级别：
+
+#+BEGIN_SRC
+root # rc-update add sshd default
+#+END_SRC
+
+如果需要串口控制台（可能是远程服务器），去掉/etc/inittab串口控制台部分的注释。
+
+#+BEGIN_SRC
+root # nano -w /etc/inittab
+# SERIAL CONSOLES
+s0:12345:respawn:/sbin/agetty 9600 ttyS0 vt100
+s1:12345:respawn:/sbin/agetty 9600 ttyS1 vt100
+#+END_SRC
+
 
 
 

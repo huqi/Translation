@@ -2509,3 +2509,22 @@ capabilities, install [[http://packages.gentoo.org/package/sys-apps/mlocate][sys
 #+BEGIN_SRC
 root # emerge --ask sys-apps/mlocate
 #+END_SRC
+
+* Optional: Remote access
+
+To be able to access the system remotely after installation, add the
+sshd init script to the default runlevel:
+
+#+BEGIN_SRC
+root # rc-update add sshd default
+#+END_SRC
+
+If serial console access is needed (which is possible in case of
+remote servers), uncomment the serial console section in /etc/inittab:
+
+#+BEGIN_SRC
+root # nano -w /etc/inittab
+# SERIAL CONSOLES
+s0:12345:respawn:/sbin/agetty 9600 ttyS0 vt100
+s1:12345:respawn:/sbin/agetty 9600 ttyS1 vt100
+#+END_SRC
