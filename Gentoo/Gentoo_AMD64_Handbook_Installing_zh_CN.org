@@ -2458,6 +2458,34 @@ s1:12345:respawn:/sbin/agetty 9600 ttyS1 vt100
 | VFAT (FAT32, ...) | [[http://packages.gentoo.org/package/sys-fs/dosfstools][sys-fs/dosfstools]]    |
 | Btrfs             | [[http://packages.gentoo.org/package/sys-fs/btrfs-progs][sys-fs/btrfs-progs]]   |
 
+* 网络工具
+
+如果不需要安装额外的网络工具，请跳到[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Bootloader][配置引导程序]]章节继续阅读。
+
+** 安装DHCP客户端
+#+BGEIN_QUOTE
+*重要*
+
+通过选项，多数的用户可能发现他们在网络中需要DHCP客户端。请安装DHCP客户端。如果忘记了这个步骤，那么系统可能不能连接到网络，接下来也不能正常的安装DHCP。
+#+END_QUOTE
+
+想要为一个或者多个网络接口自动获取IP地址，必须安装一个DHCP客户端。我们推荐使用[[http://packages.gentoo.org/package/net-misc/dhcpcd][net-misc/dhcpcd]]，然而portage树中有很多DHCP客户端也可以使用：
+
+#+BEGIN_SRC
+root # emerge --ask net-misc/dhcpcd
+#+END_SRC
+
+** 安装PPPoE客户端
+
+如果使用PPP连接网络，请安装[[http://packages.gentoo.org/package/net-dialup/ppp][net-dialup/ppp]]包：
+
+#+BEGIN_SRC
+root # emerge --ask net-dialup/ppp
+#+END_SRC
+
+现在请继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Bootloader][配置引导程序]]。
+
+
 
 
 ----------------------------

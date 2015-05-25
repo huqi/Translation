@@ -2531,11 +2531,7 @@ s1:12345:respawn:/sbin/agetty 9600 ttyS1 vt100
 
 * Filesystem tools
 
-Depending on the filesystems used, it is necessary to install the
-necessary file system utilities (for checking the filesystem
-integrity, creating additional file systems etc.). Please note that
-tools for managing ext2, ext3 or ext4 filesystems (e2fsprogs) are
-already installed as a part of the system.
+Depending on the filesystems used, it is necessary to install the necessary file system utilities (for checking the filesystem integrity, creating additional file systems etc.). Please note that tools for managing ext2, ext3 or ext4 filesystems (e2fsprogs) are already installed as a part of the system.
 
 The following table lists the tools to install if a certain file system is used:
 
@@ -2546,3 +2542,31 @@ The following table lists the tools to install if a certain file system is used:
 | JFS               | [[http://packages.gentoo.org/package/sys-fs/jfsutils][sys-fs/jfsutils]]      |
 | VFAT (FAT32, ...) | [[http://packages.gentoo.org/package/sys-fs/dosfstools][sys-fs/dosfstools]]    |
 | Btrfs             | [[http://packages.gentoo.org/package/sys-fs/btrfs-progs][sys-fs/btrfs-progs]]   |
+
+* Networking tools
+
+If there is no need for any additional networking tools, continue immediately with the section on [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Bootloader][Configuring a bootloader]].
+
+** Installing a DHCP client
+
+#+BGEIN_QUOTE
+*Important*
+
+Although optional, the majority of users will find that they need a DHCP client to get on their network. Please install a DHCP client. If this is forgotten, then the system might not be able to get on the network, and thus cannot install a DHCP client afterwards as well.
+#+END_QUOTE
+
+In order for the system to automatically obtain an IP address for one or more network interface(s), it is necessary to install a DHCP client. We recommend the use of [[http://packages.gentoo.org/package/net-misc/dhcpcd][net-misc/dhcpcd]] although many other DHCP clients are available through the portage tree as well:
+
+#+BEGIN_SRC
+root # emerge --ask net-misc/dhcpcd
+#+END_SRC
+
+** Optional: Installing a PPPoE client
+
+If PPP is used to connect to the internet, install the [[http://packages.gentoo.org/package/net-dialup/ppp][net-dialup/ppp]] package:
+
+#+BEGIN_SRC
+root # emerge --ask net-dialup/ppp
+#+END_SRC
+
+Now continue with Configuring the bootloader.
