@@ -2444,6 +2444,19 @@ s0:12345:respawn:/sbin/agetty 9600 ttyS0 vt100
 s1:12345:respawn:/sbin/agetty 9600 ttyS1 vt100
 #+END_SRC
 
+* 文件系统工具
+
+根据使用的文件系统，必须安装相应的工具（检查文件系统完整性，创建附加的文件系统等）。请注意ext2，ext3或者ext4文件系统（e2fsprogs）已经做为系统的一步分安装了。
+
+下的的表格列出了对应文件系统的工具：
+
+| Filesystem        | Package              |
+|-------------------+----------------------|
+| XFS               | [[http://packages.gentoo.org/package/sys-fs/xfsprogs][sys-fs/xfsprogs]]      |
+| ReiserFS          | [[http://packages.gentoo.org/package/sys-fs/reiserfsprogs][sys-fs/reiserfsprogs]] |
+| JFS               | [[http://packages.gentoo.org/package/sys-fs/jfsutils][sys-fs/jfsutils]]      |
+| VFAT (FAT32, ...) | [[http://packages.gentoo.org/package/sys-fs/dosfstools][sys-fs/dosfstools]]    |
+| Btrfs             | [[http://packages.gentoo.org/package/sys-fs/btrfs-progs][sys-fs/btrfs-progs]]   |
 
 
 

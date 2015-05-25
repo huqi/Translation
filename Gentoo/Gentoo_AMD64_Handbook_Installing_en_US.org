@@ -2528,3 +2528,21 @@ root # nano -w /etc/inittab
 s0:12345:respawn:/sbin/agetty 9600 ttyS0 vt100
 s1:12345:respawn:/sbin/agetty 9600 ttyS1 vt100
 #+END_SRC
+
+* Filesystem tools
+
+Depending on the filesystems used, it is necessary to install the
+necessary file system utilities (for checking the filesystem
+integrity, creating additional file systems etc.). Please note that
+tools for managing ext2, ext3 or ext4 filesystems (e2fsprogs) are
+already installed as a part of the system.
+
+The following table lists the tools to install if a certain file system is used:
+
+| Filesystem        | Package              |
+|-------------------+----------------------|
+| XFS               | [[http://packages.gentoo.org/package/sys-fs/xfsprogs][sys-fs/xfsprogs]]      |
+| ReiserFS          | [[http://packages.gentoo.org/package/sys-fs/reiserfsprogs][sys-fs/reiserfsprogs]] |
+| JFS               | [[http://packages.gentoo.org/package/sys-fs/jfsutils][sys-fs/jfsutils]]      |
+| VFAT (FAT32, ...) | [[http://packages.gentoo.org/package/sys-fs/dosfstools][sys-fs/dosfstools]]    |
+| Btrfs             | [[http://packages.gentoo.org/package/sys-fs/btrfs-progs][sys-fs/btrfs-progs]]   |
