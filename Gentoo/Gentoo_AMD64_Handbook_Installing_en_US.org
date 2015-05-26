@@ -2569,4 +2569,12 @@ If PPP is used to connect to the internet, install the [[http://packages.gentoo.
 root # emerge --ask net-dialup/ppp
 #+END_SRC
 
-Now continue with Configuring the bootloader.
+Now continue with [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Bootloader][Configuring the bootloader]].
+
+* Selecting a boot loader
+
+With the Linux kernel configured, system tools installed and configuration files edited, it is time to install the last important piece of a Linux installation: the boot loader.
+
+The boot loader is responsible for firing up the Linux kernel upon boot - without it, the system would not know how to proceed when the power button has been pressed.
+
+For amd64, we document how to configure either [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Default:_Using_GRUB2][GRUB2]] or [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_LILO][LILO]] for BIOS based systems, and [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_efibootmgr][efibootmgr]] for UEFI systems.

@@ -2485,6 +2485,13 @@ root # emerge --ask net-dialup/ppp
 
 现在请继续阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Bootloader][配置引导程序]]。
 
+* 选择引导程序
+
+在配置完Linux内核后，安装了系统工具并编辑配置文件，现在安装最后一个Linux重要部分：引导程序。
+
+引导程序用于启动Linux内核——如果没有安装它，在按动开机按钮后，系统将不知道怎么进一步处理。
+
+对于amd64位，我们说明了怎么在基于BIOS系统中配置[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Default:_Using_GRUB2][GRUB2]]或者[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_LILO][LILO]]。基于UEFI系统配置[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_efibootmgr][efibootmgr]]。
 
 
 
