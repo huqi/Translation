@@ -2578,3 +2578,39 @@ With the Linux kernel configured, system tools installed and configuration files
 The boot loader is responsible for firing up the Linux kernel upon boot - without it, the system would not know how to proceed when the power button has been pressed.
 
 For amd64, we document how to configure either [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Default:_Using_GRUB2][GRUB2]] or [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_LILO][LILO]] for BIOS based systems, and [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_efibootmgr][efibootmgr]] for UEFI systems.
+
+* Default: Using GRUB2
+
+Previously, Gentoo Linux used what is now called GRUB Legacy as the recommended boot loader. As the name implies, the older GRUB package is no longer actively maintained and has been superseded by GRUB2. For more information about the legacy [[https://wiki.gentoo.org/wiki/GRUB][GRUB]], please refer to its GRUB article on the Gentoo Wiki.
+
+** Installing GRUB2
+
+GRUB2 is provided through the sys-boot/grub package.
+
+#+BEGIN_SRC
+root # emerge --ask sys-boot/grub
+#+END_SRC
+
+The GRUB2 software is now installed on the system, but not activated yet.
+
+** Configuring GRUB2
+
+Next, install the necessary GRUB2 files in ~/boot/grub/~. Assuming the first disk (the one where the system boots from) is ~/dev/sda~, the following command will do this:
+
+#+BEGIN_SRC
+root # grub2-install /dev/sda
+#+END_SRC
+
+Next, we can generate the GRUB2 configuration based on the user configuration specified in the ~/etc/default/grub~ file and =/etc/grub.d= scripts. In most cases, no configuration is needed by users as GRUB2 will automatically detect which kernel to boot (the highest one available in =/boot/=) and what the root file system is.
+
+To generate the final GRUB2 configuration, run the grub2-mkconfig command:
+
+#+BEGIN_SRC
+root # grub2-mkconfig -o /boot/grub/grub.cfg
+Generating grub.cfg ...
+Found linux image: /boot/vmlinuz-3.16.5-gentoo
+Found initrd image: /boot/initramfs-genkernel-amd64-3.16.5-gentoo
+done
+#+END_SRC
+
+The output of the command must mention that at least one Linux image is found, as those are needed to boot the system. If an initramfs is used or =genkernel= was used to build the kernel, the correct initrd image should be detected as well. If this is not the case, go to ~/boot/~ and check the contents using the =ls= command. If the files are indeed missing, go back to the kernel configuration and installation instructions.

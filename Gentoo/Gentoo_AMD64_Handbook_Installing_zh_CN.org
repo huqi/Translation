@@ -2493,6 +2493,44 @@ root # emerge --ask net-dialup/ppp
 
 对于amd64位，我们说明了怎么在基于BIOS系统中配置[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Default:_Using_GRUB2][GRUB2]]或者[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_LILO][LILO]]。基于UEFI系统配置[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Alternative:_Using_efibootmgr][efibootmgr]]。
 
+* 默认：使用GRUB2
+
+以前，Gentoo Linux使用传统的GRUB做为建议的引导程序，就像他的名字一样，旧的GRUB包已经不再被积极维护，而已经被更强大的GRUB2替代。要想获得更多关于传统[[https://wiki.gentoo.org/wiki/GRUB][GRUB]]的信息，请查看Gentoo Wiki上GRUB相关文档。
+
+** 安装GRUB2
+
+[[http://packages.gentoo.org/package/sys-boot/grub][sys-boot/grub]]包提供了GRUB2。
+
+#+BEGIN_SRC
+root # emerge --ask sys-boot/grub
+#+END_SRC
+
+现在已经在系统上安装了GRUB2，但是还没有激活。
+
+** 配置GRUB2
+
+下一步，安装GRUB2必要的文件到 ~/boot/grub/~ 。假设第一个磁盘分区（系统的启动分区）是 ~/dev/sda~ ，可以使用如下命令操作：
+
+#+BEGIN_SRC
+root # grub2-install /dev/sda
+#+END_SRC
+
+下一步，我们可以根据用户配置的 ~/etc/default/grub~ 文件和 ~/etc/grub.d~ 文件来生成GRUB2的配置。大多数情况下，不需要用户配置，GRUB2会自动检测启动内核（在 =/boot/= 中最高版本）和根文件系统。
+
+使用 =grub2-mkconfig= 生成最终的GRUB2配置文件：
+
+#+BEGIN_SRC
+root # grub2-mkconfig -o /boot/grub/grub.cfg
+Generating grub.cfg ...
+Found linux image: /boot/vmlinuz-3.16.5-gentoo
+Found initrd image: /boot/initramfs-genkernel-amd64-3.16.5-gentoo
+done
+#+END_SRC
+
+命令的输出结果一定会提及，至少发现了一个需要启动的系统的Linux镜像。如果使用了initramfs或者用 =genkernel= 来构建内核，那么一般情况会正常检测到下确的initrd镜像。如果不是这样构建系统，进入 ~/boot/~ 目录使用 =ls= 命令列出目录内容。如果镜像文件确实不存在，请回看内核配置和相关的安装指令。
+
+
+
 
 
 ----------------------------
