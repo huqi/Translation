@@ -2529,7 +2529,97 @@ done
 
 命令的输出结果一定会提及，至少发现了一个需要启动的系统的Linux镜像。如果使用了initramfs或者用 =genkernel= 来构建内核，那么一般情况会正常检测到下确的initrd镜像。如果不是这样构建系统，进入 ~/boot/~ 目录使用 =ls= 命令列出目录内容。如果镜像文件确实不存在，请回看内核配置和相关的安装指令。
 
+* 可选：使用LILO
 
+** 安装LILO
+
+LILO，命名LInuxLOader，是一个可靠的Linux启动引导程序。但是，他年少一些GRUB的特性。有一些系统不支持GRUB启动，这是目前还使用LILO的原因。当然，也因为一些用户已经知道并习惯使用它。不管怎么样，Gentoo两个都支持。
+
+安装LILO很简单；只要使用emerge。
+
+#+BEGIN_SRC
+root # emerge --ask sys-boot/lilo
+#+END_SRC
+
+** 配置LILO
+
+要想配置LILO，首先创建/etc/lilo.conf文件：
+
+#+BEGIN_SRC
+root # nano -w /etc/lilo.conf
+#+END_SRC
+
+在配置文件中，各节用来指定可引导内核。请确认已经知道内核文件（带版本号）和initramfs文件，他们需要在配置文件中指定。
+
+#+BEGIN_SRC
+*注释*
+
+如果主文件系统使用的是JFS，需要在每个启动条目后加上一行append="ro"，这样可以让它在可读写挂在前记录日志。
+
+#+BEGIN_SRC
+文件 /etc/lilo.conf LILO配置示例
+
+boot=/dev/sda             # 在MBR系统上安装LILO
+prompt                    # 用户可以选择其它选项
+timeout=50                # 在启动默认选项时等待5秒
+default=gentoo            # 超时后启动“Gentoo”选项
+
+image=/boot/vmlinuz-3.16.5-gentoo
+  label=gentoo            # 名称
+  read-only               # 启动时根分区只读，不要修改！
+  root=/dev/sda4          # 根文件系统的位置
+
+image=/boot/vmlinuz-3.16.5-gentoo
+  label=gentoo.rescue     # 名称
+  read-only               # 启动时根分区只读，不要修改！
+  root=/dev/sda4          # 根文件系统的位置
+  append="init=/bin/bb"   # 启动Gentoo静态急救
+
+# 下面两行只针对Windows双启动
+# 示例，Windows在/dev/sda6中
+other=/dev/sda6
+  label=windows
+#+END_SRC
+
+#+BEGIN_QUOTE
+*注释*
+
+如果内核镜像使用了不同的分区方案，请根据实际情况修改。
+#+END_QUOTE
+
+如果需要initramfs，那么需要在配置文件中指定initramfs文件位置，通知initramfs真正的根设置位置：
+
+#+BEGIN_SRC
+文件 /etc/lilo.conf 在启动项中增加initramfs信息
+
+image=/boot/vmlinuz-3.16.5-gentoo
+  label=gentoo
+  read-only
+  append="real_root=/dev/sda4"
+  initrd=/boot/initramfs-genkernel-amd64-3.16.5-gentoo
+#+END_SRC
+
+如果需要在内核中增加选项，需要 =append= 语句。例如，增加 =video= 语句来打开帧缓冲：
+
+#+BEGIN_SRC
+文件 /etc/lilo.conf 在启动选项中增加video参数
+
+image=/boot/vmlinuz-3.16.5-gentoo
+  label=gentoo
+  read-only
+  root=/dev/sda4
+  append="video=uvesafb:mtrr,ywrap,1024x768-32@85"
+#+END_SRC
+
+如果用户使用 =genkernel= 来构建系统，需要使用和安装CD一样的启动选项。例如，如果需要支持SCSI设备，在内核选项上增加 =doscsi= 。
+
+现在保存并退出。
+
+最后，执行 =/sbin/lilo= ，LILO会把配置部署到系统中（也就是说把自己安装到磁盘上）。需要住，系统构建安装新内核或者修改了lilo.conf文件后，都要执行一次 =/sbin/lilo= 。
+
+#+BEGIN_SRC
+root # /sbin/lilo
+#+END_SRC
 
 
 

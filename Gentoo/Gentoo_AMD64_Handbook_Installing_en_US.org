@@ -2614,3 +2614,96 @@ done
 #+END_SRC
 
 The output of the command must mention that at least one Linux image is found, as those are needed to boot the system. If an initramfs is used or =genkernel= was used to build the kernel, the correct initrd image should be detected as well. If this is not the case, go to ~/boot/~ and check the contents using the =ls= command. If the files are indeed missing, go back to the kernel configuration and installation instructions.
+
+* Alternative: Using LILO
+
+** Installing LILO
+
+LILO, the LInuxLOader, is the tried and true workhorse of Linux boot loaders. However, it lacks some features that GRUB has. The reason why LILO is still used is that, on some systems, GRUB doesn't work and LILO does. Of course, it is also used because some people know LILO and want to stick with it. Either way, Gentoo supports both.
+
+Installing LILO is a breeze; just use emerge.
+
+#+BEGIN_SRC
+root # emerge --ask sys-boot/lilo
+#+END_SRC
+
+** Configuring LILO
+
+To configure LILO, first create /etc/lilo.conf:
+
+#+BEGIN_SRC
+root # nano -w /etc/lilo.conf
+#+END_SRC
+
+In the configuration file, sections are used to refer to the bootable kernel. Make sure that the kernel files (with kernel version) and initramfs files are known, as they need to be referred to in this configuration file.
+
+#+BEGIN_QUOTE
+*Note*
+
+If the root filesystem is JFS, add an append="ro" line after each boot item since JFS needs to replay its log before it allows read-write mounting.
+#+END_QUOTE
+
+#+BEGIN_SRC
+FILE /etc/lilo.confExample LILO configuration
+
+boot=/dev/sda             # Install LILO in the MBR
+prompt                    # Give the user the chance to select another section
+timeout=50                # Wait 5 (five) seconds before booting the default section
+default=gentoo            # When the timeout has passed, boot the "gentoo" section
+
+image=/boot/vmlinuz-3.16.5-gentoo
+  label=gentoo            # Name we give to this section
+  read-only               # Start with a read-only root. Do not alter!
+  root=/dev/sda4          # Location of the root filesystem
+
+image=/boot/vmlinuz-3.16.5-gentoo
+  label=gentoo.rescue     # Name we give to this section
+  read-only               # Start with a read-only root. Do not alter!
+  root=/dev/sda4          # Location of the root filesystem
+  append="init=/bin/bb"   # Launch the Gentoo static rescue shell
+
+# The next two lines are only if you dualboot with a Windows system.
+# In this example, Windows is hosted on /dev/sda6.
+other=/dev/sda6
+  label=windows
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+If a different partitioning scheme and/or kernel image is used, adjust accordingly.
+#+END_QUOTE
+
+If an initramfs is necessary, then change the configuration by referring to this initramfs file and telling the initramfs where the real root device is at:
+
+#+BEGIN_SRC
+FILE /etc/lilo.conf Adding initramfs information to a boot entry
+
+image=/boot/vmlinuz-3.16.5-gentoo
+  label=gentoo
+  read-only
+  append="real_root=/dev/sda4"
+  initrd=/boot/initramfs-genkernel-amd64-3.16.5-gentoo
+#+END_SRC
+
+If additional options need to be passed to the kernel, use an append statement. For instance, to add the video statement to enable framebuffer:
+
+#+BEGIN_SRC
+FILE /etc/lilo.conf Adding video parameter to the boot options
+
+image=/boot/vmlinuz-3.16.5-gentoo
+  label=gentoo
+  read-only
+  root=/dev/sda4
+  append="video=uvesafb:mtrr,ywrap,1024x768-32@85"
+#+END_SRC
+
+Users that used =genkernel= should know that their kernels use the same boot options as is used for the installation CD. For instance, if SCSI device support needs to be enabled, add =doscsi= as kernel option.
+
+Now save the file and exit.
+
+To finish up, run =/sbin/lilo= so LILO can apply the /etc/lilo.conf settings to the system (i.e. install itself on the disk). Keep in mind that =/sbin/lilo= needs to be executed every time a new kernel is installed or a change has been made to the lilo.conf file.
+
+#+BEGIN_SRC
+root # /sbin/lilo
+#+END_SRC
