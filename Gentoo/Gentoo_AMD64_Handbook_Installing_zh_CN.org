@@ -2621,6 +2621,43 @@ image=/boot/vmlinuz-3.16.5-gentoo
 root # /sbin/lilo
 #+END_SRC
 
+* 可选：使用efibootmgr
+
+基于UEFI的系统，UEFI固件可以自引导。这些系统不需要额外的启动引导程序，虽然已经有一些基于EFI并扩充功能了的启动引导程序。
+
+[[http://packages.gentoo.org/package/sys-boot/efibootmgr][sys-boot/efibootmgr]]程序不是一个启动引导程序，只是一个UEFI固件的交互接口，可以更新设置，所以在Linux内核安装成功前，可以用附加选项来启动（如果需要）或者设置多个启动项。这些交互是通过EFI变量完成的（因此需要支持EFI变量）
+
+#+BEGIN_QUOTE
+*备注*
+
+efibootmgr在UEFI系统上不是必须的。Linux可以直接自己启动，附加的启动项可以做为内核的一部分（内核配置允许用户指定启动参数）。甚至initramfs也可以作为内核的一部分。
+#+END_QUOTE
+
+首先安装软件：
+
+#+BEGIN_SRC
+root # emerge --ask sys-boot/efibootmgr
+#+END_SRC
+
+下一步，告诉UEFI系统创建一个叫作“Gentoo”的启动项，选择刚刚创建的内核：
+
+#+BEGIN_SRC
+root # efibootmgr --create --disk /dev/sda --part 2 --label "Gentoo" --loader "\efi\boot\bootx64.efi"
+#+END_SRC
+
+如果使用初始化内核文件系统（initramfs），添加适当的启动项：
+
+#+BEGIN_SRC
+root # efibootmgr -c -d /dev/sda -p 2 -L "Gentoo" -l "\efi\boot\bootx64.efi" initrd='\initramfs-genkernel-amd64-3.16.5-gentoo'
+#+END_SRC
+
+#+BEGIN_QUOTE
+*备注*
+
+使用EFI描述时，必须使用 =\= 作为目录分隔符。
+#+END_QUOTE
+
+修改完成后，重新启动，可以看到一个叫做“Gentoo”的启动选项。
 
 
 ----------------------------

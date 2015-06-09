@@ -2707,3 +2707,44 @@ To finish up, run =/sbin/lilo= so LILO can apply the /etc/lilo.conf settings to 
 #+BEGIN_SRC
 root # /sbin/lilo
 #+END_SRC
+
+* Alternative: Using efibootmgr
+
+On UEFI based systems, the boot loader itself is the UEFI firmware of the system. Such systems do not need additional boot loaders to help boot the system, although EFI-based bootloaders do exist to extend the functionality of UEFI systems during boot.
+
+The [[http://packages.gentoo.org/package/sys-boot/efibootmgr][sys-boot/efibootmgr]] application is not a boot loader, but a tool to interact with the UEFI firmware and update its settings, so that the Linux kernel that was previously installed can be booted with additional options (if necessary), or to allow multiple boot entries. This interaction is done through the EFI variables (hence the need for the support of EFI vars in the past).
+
+#+BEGIN_QUOTE
+*Note*
+
+efibootmgr is not a requirement to boot from an UEFI system. The Linux kernel itself can (and will) be booted immediately, and additional boot options can be made part of the Linux kernel itself (there is a kernel configuration that allows the user to specify the boot parameters). Even an initramfs can be made part of the kernel itself.
+#+END_QUOTE
+
+First install the software:
+
+#+BEGIN_SRC
+root # emerge --ask sys-boot/efibootmgr
+#+END_SRC
+
+Next, tell the UEFI firmware that a boot entry called "Gentoo" is to be created, which has the freshly installed Linux kernel booted:
+
+#+BEGIN_SRC
+root # efibootmgr --create --disk /dev/sda --part 2 --label "Gentoo" --loader "\efi\boot\bootx64.efi"
+#+END_SRC
+
+If an initial ram file system (initramfs) is used, add the proper boot option to it:
+
+#+BEGIN_SRC
+root # efibootmgr -c -d /dev/sda -p 2 -L "Gentoo" -l "\efi\boot\bootx64.efi" initrd='\initramfs-genkernel-amd64-3.16.5-gentoo'
+#+END_SRC
+
+#+BEGIN_QUOTE
+*Note*
+
+The use of =\= as directory separator is mandatory when using EFI definitions.
+#+END_QUOTE
+
+With these changes done, when the system reboots, a boot entry called "Gentoo" will be available.
+
+
+
