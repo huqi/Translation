@@ -2659,6 +2659,25 @@ root # efibootmgr -c -d /dev/sda -p 2 -L "Gentoo" -l "\efi\boot\bootx64.efi" ini
 
 修改完成后，重新启动，可以看到一个叫做“Gentoo”的启动选项。
 
+* 重新启动系统
+
+退出chrooted环境并卸载所有已挂在的分区。输入最后一个神奇的指令： =reboot= 。
+
+#+BEGIN_SRC
+root # exit
+cdimage ~# cd
+cdimage ~# umount -l /mnt/gentoo/dev{/shm,/pts,}
+cdimage ~# umount /mnt/gentoo{/boot,/sys,/proc,}
+cdimage ~# reboot
+#+END_SRC
+
+当然，不要忘记拿出启动CD，否则会再次启动安装CD，而不是进入新的Gentoo系统。
+
+启动新安装的Gentoo环境后，请阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Finalizing][完成Gentoo安装]]。
+
+
+
+
 
 ----------------------------
 译注：

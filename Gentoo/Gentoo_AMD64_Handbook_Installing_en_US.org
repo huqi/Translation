@@ -2746,5 +2746,23 @@ The use of =\= as directory separator is mandatory when using EFI definitions.
 
 With these changes done, when the system reboots, a boot entry called "Gentoo" will be available.
 
+* Rebooting the system
+
+Exit the chrooted environment and unmount all mounted partitions. Then type in that one magical command that initiates the final, true test: =reboot=.
+
+#+BEGIN_SRC
+root # exit
+cdimage ~# cd
+cdimage ~# umount -l /mnt/gentoo/dev{/shm,/pts,}
+cdimage ~# umount /mnt/gentoo{/boot,/sys,/proc,}
+cdimage ~# reboot
+#+END_SRC
+
+Of course, don't forget to remove the bootable CD, otherwise the CD might be booted again instead of the new Gentoo system.
+
+Once rebooted in the freshly installed Gentoo environment, finish up with [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Finalizing][Finalizing the Gentoo installation]].
+
+
+
 
 
