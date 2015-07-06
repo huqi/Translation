@@ -2710,8 +2710,15 @@ Re-enter password: (Re-enter the password to verify)
 
 如果用户需要root权限来操作某些任务，可以使用 =su -= 来临时获取root权限。另一种方法是使用[[https://wiki.gentoo.org/wiki/Sudo][sudo]]包，如果配置正确，使用起来很稳定。
 
+* 磁盘清理
 
+** 删除tarballs
 
+Gentoo安装完成并且重新启动后，如果一切顺利，我们现在可以从磁盘中删除下载的stage3包。他被下载到了 =/= 目录下。
+
+#+BEGIN_SRC
+root # rm /stage3-*.tar.bz2*
+#+END_SRC
 
 
 

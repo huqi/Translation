@@ -2796,3 +2796,13 @@ Re-enter password: (Re-enter the password to verify)
 #+END_SRC
 
 If a user ever needs to perform some task as root, they can use =su -= to temporarily receive root privileges. Another way is to use the [[https://wiki.gentoo.org/wiki/Sudo][sudo]] package which is, if correctly configured, very secure.
+
+* Disk cleanup
+
+** Removing tarballs
+
+With the Gentoo installation finished and the system rebooted, if everything has gone well, we can now remove the downloaded stage3 tarball from the hard disk. Remember that they were downloaded to the =/= directory.
+
+#+BEGIN_SRC
+root # rm /stage3-*.tar.bz2*
+#+END_SRC
