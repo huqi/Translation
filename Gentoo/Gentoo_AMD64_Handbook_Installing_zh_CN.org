@@ -2720,7 +2720,23 @@ Gentoo安装完成并且重新启动后，如果一切顺利，我们现在可�
 root # rm /stage3-*.tar.bz2*
 #+END_SRC
 
+* 下一步做什么？
 
+** 文档
+
+下一步做什么？怎么选择？先从哪里开始探索？Gentoo给用户提供了很多可能性，所以有很多特性文档（很少没有）。
+
+绝对应该看一看Gentoo手册的下一部分[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Working/Portage][用Gentoo工作]]，那里解释了怎么保持最新软件，怎么安装更多的软件，USE标志是什么，Gentoo怎么初始化系统的工作，等等。
+
+除了手册，你应该鼓起勇气来探索Gentoo Wiki来查找社区提供的附加文档。Gentoo文档团队也提供了一个[[https://wiki.gentoo.org/wiki/Project:Documentation/Overview][文档概述]]，列出了精心挑选的Wiki文档。例如，有一些[[https://wiki.gentoo.org/wiki/Localization/HOWTO][本地化的文档]]使系统更有家的感觉。
+
+** Gentoo在线
+
+欢迎每个人来访问我们[[https://forums.gentoo.org/][Gentoo论坛]]或者我们的[[https://www.gentoo.org/main/en/irc.xml][Gentoo IRC频道]]。
+
+我们也有几个向所有用户开放的[[https://www.gentoo.org/main/en/lists.xml][邮件列表]]，加入的方法也在那个页面当中。
+
+安装愉快。：）
 
 
 

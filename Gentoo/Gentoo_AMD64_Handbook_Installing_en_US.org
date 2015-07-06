@@ -2806,3 +2806,21 @@ With the Gentoo installation finished and the system rebooted, if everything has
 #+BEGIN_SRC
 root # rm /stage3-*.tar.bz2*
 #+END_SRC
+
+* Where to go from here
+
+** Documentation
+
+Where to go from here? What are the options now? What to explore first? Gentoo provides its users with lots of possibilities, and therefore lots of documented (and less documented) features.
+
+Definitely take a look at the next part of the Gentoo Handbook entitled Working with Gentoo which explains how to keep the software up to date, how to install more software, what USE flags are, how the Gentoo init system works, etc.
+
+Apart from the handbook, you should also feel encouraged to explore other corners of the Gentoo Wiki to find additional, community-provided documentation. The Gentoo documentation team also offers a [[https://wiki.gentoo.org/wiki/Project:Documentation/Overview][Documentation overview]] which lists a fine selection of Wiki articles. For instance, it refers to the [[https://wiki.gentoo.org/wiki/Localization/HOWTO][localization guide]] to make a system feel more at home.
+
+** Gentoo online
+
+Everyone is of course always welcome on our [[https://forums.gentoo.org/][Gentoo forums]] or on one of our many [[https://www.gentoo.org/main/en/irc.xml][Gentoo IRC channels]].
+
+We also have [[https://www.gentoo.org/main/en/lists.xml][several mailing lists]] open to all our users. Information on how to join is contained in that page.
+
+Enjoy your installation. :)
