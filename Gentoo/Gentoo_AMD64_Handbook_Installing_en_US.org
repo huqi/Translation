@@ -2762,7 +2762,37 @@ Of course, don't forget to remove the bootable CD, otherwise the CD might be boo
 
 Once rebooted in the freshly installed Gentoo environment, finish up with [[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Finalizing][Finalizing the Gentoo installation]].
 
+* User administration
 
+** Adding a user for daily use
 
+Working as root on a Unix/Linux system is dangerous and should be avoided as much as possible. Therefore it is strongly recommended to add a user for day-to-day use.
 
+The groups the user is member of define what activities the user can perform. The following table lists a number of important groups:
 
+| Group   | Description                                                                |
+|---------+----------------------------------------------------------------------------|
+| audio   | be able to access the audio devices                                        |
+| cdrom   | be able to directly access optical devices                                 |
+| floppy  | be able to directly access floppy devices                                  |
+| games   | be able to play games                                                      |
+| portage | be able to access portage restricted resources                             |
+| usb     | be able to access USB devices                                              |
+| video   | be able to access video capturing hardware and doing hardware acceleration |
+| wheel   | be able to use su                                                          |
+
+For instance, to create a user called john who is member of the wheel, users and audio groups, log in as root first (only root can create users) and run =useradd=:
+
+#+BEGIN_SRC
+Login:root
+Password: (Enter the root password)
+#+END_SRC
+
+#+BEGIN_SRC
+root # useradd -m -G users,wheel,audio -s /bin/bash john
+root # passwd john
+Password: (Enter the password for john)
+Re-enter password: (Re-enter the password to verify)
+#+END_SRC
+
+If a user ever needs to perform some task as root, they can use =su -= to temporarily receive root privileges. Another way is to use the [[https://wiki.gentoo.org/wiki/Sudo][sudo]] package which is, if correctly configured, very secure.

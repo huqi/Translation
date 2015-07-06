@@ -2675,6 +2675,44 @@ cdimage ~# reboot
 
 启动新安装的Gentoo环境后，请阅读[[https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Finalizing][完成Gentoo安装]]。
 
+* 用户管理
+
+** 增加普通用户
+
+用户root用户来操作Unix/Linux系统是非常危险的，我们应该尽量避免使用。所以强烈建议增加一个日常使用的账户。
+
+群组定义了用户可以使用的功能。下面的表格列出了一些重要群组：
+
+| 群组    | 描述                           |
+|---------+--------------------------------|
+| audio   | 可以使用音频设备               |
+| cdrom   | 可以使用光驱设备               |
+| floppy  | 可以使用软驱设备               |
+| games   | 可以玩游戏                     |
+| portage | 可以portage有限的资源          |
+| usb     | 可以使用USB设备                |
+| video   | 可以使用视频抓取硬件和硬件加速 |
+| wheel   | 可以使用su                     |
+
+例如，创建一个属于wheel、users和audio群组的名为john的用户，首先用root（只有root可以创建用户）登录并且执行 =useradd= ：
+
+#+BEGIN_SRC
+Login:root
+Password: (Enter the root password)
+#+END_SRC
+
+#+BEGIN_SRC
+root # useradd -m -G users,wheel,audio -s /bin/bash john
+root # passwd john
+Password: (Enter the password for john)
+Re-enter password: (Re-enter the password to verify)
+#+END_SRC
+
+如果用户需要root权限来操作某些任务，可以使用 =su -= 来临时获取root权限。另一种方法是使用[[https://wiki.gentoo.org/wiki/Sudo][sudo]]包，如果配置正确，使用起来很稳定。
+
+
+
+
 
 
 
