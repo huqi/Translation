@@ -895,6 +895,7 @@ Welcome to GNU Parted! Type 'help' to view a list of commands.
 *警告*
 
 修改分区类型会删除磁盘上的所有分区。磁盘里的所有数据将会丢失。
+#+END_QUOTE
 
 #+BEGIN_SRC
 (parted) mklabel gpt
